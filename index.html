@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yogatoroute — Votre pause respiration sur l'aire</title>
+<meta name="description" content="Quelques minutes de respiration guidée sur l'aire de repos avant de reprendre la route : moins de stress, plus d'attention au volant.">
+<meta name="theme-color" content="#F3E4EC">
+<link rel="icon" type="image/png" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --violet-pale:#F3E4EC;    /* tinte très claire du mauve */
+    --violet-doux:#B27793;    /* mauve intermédiaire */
+    --violet-profond:#824566; /* mauve (couleur fournie) */
+    --jaune-pale:#F6E4DE;     /* tinte très claire du doré */
+    --jaune-soleil:#8A4941;   /* doré (couleur fournie) */
+    --dore:#C9A227;           /* doré du logotype (exempt WCAG : logo) */
+    --blanc-brume:#FDFAF8;
+    --encre:#4A2C3A;
+    --encre-douce:#6B5260;  /* texte secondaire, contraste AA garanti */
+    --radius:16px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Karla',sans-serif;
+    color:var(--encre);
+    background:linear-gradient(170deg,var(--violet-pale) 0%,var(--blanc-brume) 45%,var(--jaune-pale) 100%);
+    min-height:100vh;
+    line-height:1.55;
+  }
+  h1,h2{font-family:'Bricolage Grotesque',sans-serif;line-height:1.12;color:var(--violet-profond);text-wrap:balance;}
+
+  :focus-visible{outline:3px solid var(--violet-profond);outline-offset:2px;border-radius:4px;}
+
+  .app{
+    max-width:520px;
+    margin:0 auto;
+    min-height:100vh;
+    min-height:100dvh;
+    display:flex;flex-direction:column;
+    padding:22px 20px 40px;
+  }
+
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:26px;}
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;font-size:1.3rem;color:var(--violet-profond);
+    text-decoration:none;background:none;border:none;cursor:pointer;
+    padding:0;
+  }
+  .logo img{width:40px;height:40px;display:block;border-radius:50%;}
+  .logo .to{color:var(--dore);} /* "to" en doré */
+  .badge-pause{
+    font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--violet-profond);
+    border:2px solid var(--violet-doux);border-radius:10px;
+    padding:4px 10px;background:#fff;
+  }
+
+  /* ---------- Écrans ---------- */
+  .ecran{display:none;flex-direction:column;flex:1;}
+  .ecran.actif{display:flex;}
+
+  /* ---------- Accueil ---------- */
+  .accueil h1{font-size:clamp(1.7rem,6.5vw,2.3rem);margin-bottom:12px;}
+  .accueil h1 em{font-style:normal;background:linear-gradient(transparent 60%,#EEC3B9 60%);}
+  .accueil > p{margin-bottom:26px;max-width:34em;}
+
+  .question{
+    font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--violet-profond);margin-bottom:12px;
+  }
+  .choix{display:flex;flex-direction:column;gap:14px;}
+  .carte-exo{
+    text-align:left;cursor:pointer;
+    background:#fff;border:1px solid var(--violet-doux);
+    border-radius:var(--radius);
+    padding:18px 20px;
+    display:flex;align-items:center;gap:16px;
+    transition:transform .15s ease, box-shadow .15s ease;
+    font-family:inherit;font-size:1rem;color:inherit;
+  }
+  .carte-exo:hover,.carte-exo:focus-visible{transform:translateY(-2px);box-shadow:0 4px 8px rgba(130,69,102,.16);}
+  .carte-exo:active{transform:translateY(0);}
+  .carte-exo .pastille{
+    flex-shrink:0;
+    width:52px;height:52px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;background:var(--jaune-pale);
+  }
+  .carte-exo .texte{display:flex;flex-direction:column;}
+  .carte-exo .titre-exo{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-size:1.1rem;font-weight:700;line-height:1.12;
+    color:var(--violet-profond);margin-bottom:2px;
+  }
+  .carte-exo .meta{font-size:.85rem;color:var(--encre-douce);}
+  .carte-exo .tag{
+    margin-left:auto;flex-shrink:0;
+    font-size:.72rem;font-weight:700;
+    color:var(--jaune-soleil);background:var(--jaune-pale);
+    padding:5px 10px;border-radius:999px;white-space:nowrap;
+  }
+
+  .note-secu{
+    margin-top:auto;padding-top:26px;
+    font-size:.82rem;color:var(--encre-douce);text-align:center;
+  }
+
+  /* ---------- Séance ---------- */
+  .seance{align-items:center;text-align:center;}
+  .seance h2{font-size:1.4rem;margin-bottom:4px;}
+  .seance .sous-titre{font-size:.9rem;color:var(--encre-douce);margin-bottom:8px;max-width:34em;}
+
+  .scene{
+    position:relative;
+    width:min(300px,72vw);aspect-ratio:1;
+    margin:26px 0 10px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .cercle{
+    position:absolute;inset:0;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,var(--jaune-pale),var(--violet-doux));
+    box-shadow:0 20px 60px rgba(130,69,102,.25), inset 0 0 0 10px rgba(253,251,246,.55);
+    transform:scale(.68);
+    transition:transform 0s ease-in-out;
+    will-change:transform;
+  }
+  .consigne{
+    position:relative;z-index:1;
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:500;color:var(--encre);
+  }
+  .consigne .phase{font-size:1.5rem;display:block;}
+  .consigne .compte{font-size:2.6rem;font-weight:700;display:block;}
+
+  .progression{
+    width:100%;max-width:300px;height:8px;
+    background:rgba(130,69,102,.12);border-radius:999px;
+    overflow:hidden;margin:18px 0 6px;
+  }
+  .progression div{height:100%;width:100%;transform:scaleX(0);transform-origin:left;background:var(--violet-profond);border-radius:999px;transition:transform .5s linear;}
+  .temps-restant{font-size:.85rem;color:var(--encre-douce);margin-bottom:22px;min-height:1.3em;}
+
+  .boutons{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+  .btn{
+    font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;
+    padding:14px 28px;border-radius:999px;border:none;
+    transition:transform .15s ease;
+  }
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(0);}
+  .btn-primary{background:var(--violet-profond);color:#fff;}
+  .btn-secondary{background:transparent;color:var(--violet-profond);border:2px solid var(--violet-profond);}
+
+  /* ---------- Fin ---------- */
+  .fin{align-items:center;text-align:center;justify-content:center;}
+  .fin .soleil{font-size:3.2rem;margin-bottom:14px;}
+  .fin h2{font-size:1.7rem;margin-bottom:10px;}
+  .fin p{max-width:30em;margin-bottom:26px;}
+
+  @media (prefers-reduced-motion:reduce){
+    .btn,.carte-exo,.progression div{transition:none;}
+    .btn:hover,.carte-exo:hover,.carte-exo:focus-visible{transform:none;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <button class="logo" onclick="allerAccueil()"><img src="logo.png" alt=""><span class="mot">Yoga<span class="to">to</span>route</span></button>
+    <span class="badge-pause">⛱ Mode pause</span>
+  </header>
+
+  <!-- ================= ACCUEIL ================= -->
+  <section class="ecran accueil actif" id="ecran-accueil">
+    <h1>Vous êtes garé·e ?<br>Offrez-vous <em>une vraie pause</em>.</h1>
+    <p>Quelques minutes de respiration guidée avant de reprendre la route : moins de stress, moins d'anxiété, plus d'attention au volant.</p>
+
+    <p class="question">De quoi avez-vous besoin là, maintenant ?</p>
+    <div class="choix">
+      <button class="carte-exo" onclick="lancerExo('coherence')">
+        <span class="pastille" aria-hidden="true">🌊</span>
+        <span class="texte">
+          <span class="titre-exo">Relâcher la pression</span>
+          <span class="meta">Cohérence cardiaque · 5 min</span>
+        </span>
+        <span class="tag">Anti-stress</span>
+      </button>
+
+      <button class="carte-exo" onclick="lancerExo('478')">
+        <span class="pastille" aria-hidden="true">🌙</span>
+        <span class="texte">
+          <span class="titre-exo">Calmer l'anxiété</span>
+          <span class="meta">Respiration 4-7-8 · 3 min</span>
+        </span>
+        <span class="tag">Apaisant</span>
+      </button>
+
+      <button class="carte-exo" onclick="lancerExo('carree')">
+        <span class="pastille" aria-hidden="true">🧭</span>
+        <span class="texte">
+          <span class="titre-exo">Se recentrer</span>
+          <span class="meta">Respiration carrée · 4 min</span>
+        </span>
+        <span class="tag">Concentration</span>
+      </button>
+    </div>
+
+    <p class="note-secu">🚗 À pratiquer uniquement à l'arrêt, moteur coupé, sur une aire de repos.</p>
+  </section>
+
+  <!-- ================= SÉANCE ================= -->
+  <section class="ecran seance" id="ecran-seance">
+    <h2 id="seance-titre">Cohérence cardiaque</h2>
+    <p class="sous-titre" id="seance-sous-titre">Suivez le cercle et la consigne.</p>
+
+    <div class="scene">
+      <div class="cercle" id="cercle"></div>
+      <div class="consigne">
+        <span class="phase" id="phase" aria-live="polite">Préparez-vous…</span>
+        <span class="compte" id="compte" aria-hidden="true"></span>
+      </div>
+    </div>
+
+    <div class="progression" aria-hidden="true"><div id="barre"></div></div>
+    <p class="temps-restant" id="temps-restant"></p>
+
+    <div class="boutons">
+      <button class="btn btn-secondary" onclick="arreterSeance()">Arrêter</button>
+    </div>
+  </section>
+
+  <!-- ================= FIN ================= -->
+  <section class="ecran fin" id="ecran-fin">
+    <div class="soleil">🌤</div>
+    <h2>Bien joué. Bonne route !</h2>
+    <p>Prenez encore un instant : buvez un peu d'eau, étirez la nuque et les épaules, puis reprenez le volant l'esprit clair.</p>
+    <div class="boutons">
+      <button class="btn btn-primary" onclick="allerAccueil()">Faire un autre exercice</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  const EXOS = {
+    coherence: {
+      titre: "Cohérence cardiaque",
+      sousTitre: "Inspirez 5 s, expirez 5 s. Laissez le rythme s'installer.",
+      duree: 5 * 60,
+      phases: [
+        { nom: "Inspirez", type: "inspire", duree: 5 },
+        { nom: "Expirez",  type: "expire",  duree: 5 }
+      ]
+    },
+    "478": {
+      titre: "Respiration 4-7-8",
+      sousTitre: "Expirez lentement, comme si vous souffliez dans une paille.",
+      duree: 3 * 60,
+      phases: [
+        { nom: "Inspirez", type: "inspire", duree: 4 },
+        { nom: "Retenez",  type: "pause",   duree: 7 },
+        { nom: "Expirez",  type: "expire",  duree: 8 }
+      ]
+    },
+    carree: {
+      titre: "Respiration carrée",
+      sousTitre: "Quatre temps égaux, comme les quatre côtés d'un carré.",
+      duree: 4 * 60,
+      phases: [
+        { nom: "Inspirez", type: "inspire", duree: 4 },
+        { nom: "Retenez",  type: "pause",   duree: 4 },
+        { nom: "Expirez",  type: "expire",  duree: 4 },
+        { nom: "Retenez",  type: "pause",   duree: 4 }
+      ]
+    }
+  };
+
+  let timerPhase = null, timerSeconde = null;
+  let exoCourant = null, indexPhase = 0, tempsEcoule = 0, compteARebours = 0;
+
+  const $ = id => document.getElementById(id);
+
+  function montrer(id){
+    document.querySelectorAll(".ecran").forEach(e => e.classList.remove("actif"));
+    $(id).classList.add("actif");
+    window.scrollTo(0,0);
+  }
+
+  function allerAccueil(){
+    arreterTimers();
+    montrer("ecran-accueil");
+  }
+
+  function lancerExo(cle){
+    exoCourant = EXOS[cle];
+    indexPhase = 0;
+    tempsEcoule = 0;
+    derniereEchelle = ECHELLE_MIN;
+    $("seance-titre").textContent = exoCourant.titre;
+    $("seance-sous-titre").textContent = exoCourant.sousTitre;
+    $("barre").style.transform = "scaleX(0)";
+    montrer("ecran-seance"); // afficher l'écran AVANT de préparer la boule
+    const cercle = $("cercle");
+    cercle.style.transitionDuration = "0s";
+    cercle.style.transform = `scale(${ECHELLE_MIN})`;
+    void cercle.offsetWidth; // force le navigateur à peindre l'état dégonflé
+    demarrerPhase();
+    timerSeconde = setInterval(tic, 1000);
+  }
+
+  const ECHELLE_MIN = 0.68, ECHELLE_MAX = 1;
+  // Pas de garde prefers-reduced-motion ici : le gonflement du cercle EST la
+  // consigne de respiration (mouvement essentiel, exempté par WCAG 2.3.3).
+  let derniereEchelle = ECHELLE_MIN;
+
+  function demarrerPhase(){
+    const phase = exoCourant.phases[indexPhase];
+    const cercle = $("cercle");
+    $("phase").textContent = phase.nom;
+    compteARebours = phase.duree;
+    $("compte").textContent = compteARebours;
+
+    if (phase.type === "inspire"){
+      // la boule gonfle pendant toute la durée de la phase
+      derniereEchelle = ECHELLE_MAX;
+      cercle.style.transitionDuration = phase.duree + "s";
+      cercle.style.transform = `scale(${ECHELLE_MAX})`;
+    } else if (phase.type === "expire"){
+      // la boule se dégonfle pendant toute la durée de la phase
+      derniereEchelle = ECHELLE_MIN;
+      cercle.style.transitionDuration = phase.duree + "s";
+      cercle.style.transform = `scale(${ECHELLE_MIN})`;
+    } else {
+      // Retenez : la boule reste figée dans son état précédent (gonflée ou dégonflée)
+      cercle.style.transitionDuration = "0s";
+      cercle.style.transform = `scale(${derniereEchelle})`;
+    }
+
+    timerPhase = setTimeout(() => {
+      indexPhase = (indexPhase + 1) % exoCourant.phases.length;
+      demarrerPhase();
+    }, phase.duree * 1000);
+  }
+
+  function tic(){
+    tempsEcoule++;
+    compteARebours = Math.max(0, compteARebours - 1);
+    $("compte").textContent = compteARebours > 0 ? compteARebours : "";
+
+    const restant = exoCourant.duree - tempsEcoule;
+    $("barre").style.transform = `scaleX(${Math.min(1, tempsEcoule / exoCourant.duree)})`;
+    const m = Math.floor(restant / 60), s = restant % 60;
+    $("temps-restant").textContent = restant > 0
+      ? `Encore ${m}:${String(s).padStart(2,"0")}`
+      : "";
+
+    if (restant <= 0) terminerSeance();
+  }
+
+  function terminerSeance(){
+    arreterTimers();
+    montrer("ecran-fin");
+  }
+
+  function arreterSeance(){
+    arreterTimers();
+    montrer("ecran-accueil");
+  }
+
+  function arreterTimers(){
+    clearTimeout(timerPhase);
+    clearInterval(timerSeconde);
+  }
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && $("ecran-seance").classList.contains("actif")) arreterSeance();
+  });
+</script>
+</body>
+</html>
