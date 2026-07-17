@@ -505,14 +505,21 @@
 
   /* ---------- Audio ---------- */
   const A = {
-    ding:  new Audio("assets/ding.mp3"),
-    music: new Audio("assets/music.mp3")
+    ding:    new Audio("assets/ding.mp3"),
+    music:   new Audio("assets/music.mp3"),
+    inspire: new Audio("assets/inspire.mp3"),  // repère vocal « inspirez »
+    bloque:  new Audio("assets/bloque.mp3"),   // repère vocal « bloquez » (rétention)
+    expire:  new Audio("assets/expire.mp3")    // repère vocal « expirez »
   };
-  A.ding.preload  = "auto";
-  A.music.preload = "auto";
-  A.music.loop    = true;
-  A.music.volume  = 0.35;
-  A.ding.volume   = 0.7;
+  [A.ding, A.music, A.inspire, A.bloque, A.expire].forEach(el => { el.preload = "auto"; });
+  A.music.loop  = true;
+  A.ding.volume = 0.7;
+
+  // Volume de la musique : nominal, abaissé (ducking) le temps d'un repère vocal.
+  const MUSIQUE_VOL = 0.35, MUSIQUE_VOL_DUCK = 0.15;
+  A.music.volume = MUSIQUE_VOL;
+  // Repère vocal joué à l'entrée dans chaque type de phase (rien pour maintien / repos).
+  const VOIX = { inspire: A.inspire, pause: A.bloque, expire: A.expire };
 
   /* ---------- Durées de la phase d'introduction ---------- */
   // Déroulé de l'intro : le message s'affiche tout de suite, on laisse le temps de
@@ -540,8 +547,65 @@
     });
   }
   function stopAudio(){
+    arreterVoix(false);            // coupe tout repère vocal en cours
+    if (fadeMusiqueRAF){ cancelAnimationFrame(fadeMusiqueRAF); fadeMusiqueRAF = null; }
     try{ A.ding.pause(); A.ding.currentTime = 0; }catch(e){}
     try{ A.music.pause(); A.music.currentTime = 0; }catch(e){}
+    A.music.volume = MUSIQUE_VOL;  // réinitialise pour la prochaine séance
+  }
+
+  /* ---------- Repères vocaux (section Respiration) ---------- */
+  // Ducking : la musique s'efface en douceur le temps d'un repère, puis remonte.
+  let fadeMusiqueRAF = null;
+  function fondreMusique(cible, duree){
+    if (fadeMusiqueRAF){ cancelAnimationFrame(fadeMusiqueRAF); fadeMusiqueRAF = null; }
+    duree = duree || 180;
+    const depart = A.music.volume, tf = performance.now();
+    const pas = () => {
+      const k = Math.min(1, (performance.now() - tf) / duree);
+      A.music.volume = depart + (cible - depart) * k;
+      fadeMusiqueRAF = k < 1 ? requestAnimationFrame(pas) : null;
+    };
+    pas();
+  }
+
+  let voixCourante = null;   // { el, onEnded } de la voix qui joue en ce moment
+  function arreterVoix(restaurerMusique){
+    if (voixCourante){
+      voixCourante.el.removeEventListener("ended", voixCourante.onEnded);
+      try{ voixCourante.el.pause(); voixCourante.el.currentTime = 0; }catch(e){}
+      voixCourante = null;
+    }
+    if (restaurerMusique) fondreMusique(MUSIQUE_VOL);
+  }
+  function jouerVoix(type){
+    const el = VOIX[type];
+    if (!el) return;                  // maintien / repos : pas de repère vocal
+    arreterVoix(false);               // coupe la voix précédente, le ducking reste en place
+    fondreMusique(MUSIQUE_VOL_DUCK);  // la musique s'efface
+    const onEnded = () => arreterVoix(true);   // fin du repère → la musique remonte
+    voixCourante = { el: el, onEnded: onEnded };
+    el.addEventListener("ended", onEnded);
+    try{
+      el.currentTime = 0;
+      const p = el.play();
+      if (p && p.catch) p.catch(() => arreterVoix(true)); // bloqué → on remonte la musique
+    }catch(e){ arreterVoix(true); }
+  }
+  // Déverrouille les 3 voix via le geste utilisateur (clic « Lancer ») — clé sur iOS/Safari.
+  let voixAmorcees = false;
+  function amorcerVoix(){
+    if (voixAmorcees) return;
+    voixAmorcees = true;
+    [A.inspire, A.bloque, A.expire].forEach(el => {
+      try{
+        el.muted = true;
+        const p = el.play();
+        const relacher = () => { try{ el.pause(); el.currentTime = 0; }catch(e){} el.muted = false; };
+        if (p && p.then) p.then(relacher).catch(() => { el.muted = false; });
+        else relacher();
+      }catch(e){ el.muted = false; }
+    });
   }
 
   /* ---------- Échelles de la bulle ---------- */
@@ -556,6 +620,7 @@
   let timeline = [], bornes = [], dureeTotale = 0;
   let t0 = 0, rafId = null, idxPhaseAffiche = -1, compteAffiche = -1, restantAffiche = -1;
   let jetonLancement = 0;        // invalide les lancements en attente (anti-double-clic pendant l'intro)
+  let voixActive = false;        // repères vocaux : activés uniquement en section Respiration
 
   const $ = id => document.getElementById(id);
 
@@ -656,8 +721,10 @@
   /* ---------- Lancement d'un exercice ---------- */
   async function lancerExo(sectionId, cle){
     arreterTout();
+    amorcerVoix();                  // déverrouille les voix dans le geste utilisateur (clic)
     const jeton = jetonLancement;   // toute action ultérieure (arrêt, autre exercice) fera diverger ce jeton
     sectionCourante = sectionId;
+    voixActive = (sectionId === "respiration");  // repères vocaux réservés aux exercices de respiration
     appliquerTheme(sectionId);
 
     const section = SECTIONS[sectionId];
@@ -689,7 +756,7 @@
     if (abandonne()) return;
 
     // --- Musique d'ambiance en boucle pendant tout l'exercice ---
-    try{ A.music.currentTime = 0; const pm = A.music.play(); if (pm && pm.catch) pm.catch(()=>{}); }catch(e){}
+    try{ A.music.currentTime = 0; A.music.volume = MUSIQUE_VOL; const pm = A.music.play(); if (pm && pm.catch) pm.catch(()=>{}); }catch(e){}
 
     // --- Démarrage de l'exercice ---
     $("consigne").classList.remove("message");
@@ -726,6 +793,7 @@
       $("phase").textContent = phase.nom;
       $("sous-consigne").textContent = phase.sous || "";
       idxPhaseAffiche = idx;
+      if (voixActive) jouerVoix(phase.type);   // repère vocal pile au changement de phase
     }
 
     // Décompte : ceil(restant) affiche la valeur pleine dès le départ, sans sauter le 1er chiffre
@@ -753,7 +821,10 @@
   /* ---------- Conclusion (message + ding) ---------- */
   function conclure(){
     cancelAnimationFrame(rafId); rafId = null;
+    arreterVoix(false);            // coupe un éventuel repère de la dernière phase
+    if (fadeMusiqueRAF){ cancelAnimationFrame(fadeMusiqueRAF); fadeMusiqueRAF = null; }
     try{ A.music.pause(); }catch(e){}
+    A.music.volume = MUSIQUE_VOL;
     etat = "conclusion";
 
     const section = SECTIONS[sectionCourante];
