@@ -188,6 +188,13 @@
     margin-top:auto;padding-top:26px;
     font-size:.82rem;color:var(--encre-douce);text-align:center;
   }
+  /* Copyright discret en pied de l'accueil — teinté par la section active, atténué */
+  .copyright{
+    padding-top:16px;
+    font-size:.8rem;text-align:center;
+    color:var(--accent-fort);opacity:.5;
+    transition:color .4s ease;
+  }
 
   /* ---------- Séance ---------- */
   .seance{align-items:center;text-align:center;}
@@ -294,6 +301,7 @@
     <div class="choix" id="liste-exos"><!-- cartes injectées par JS --></div>
 
     <p class="note-secu">🚗 À pratiquer uniquement à l'arrêt, moteur coupé, sur une aire de repos.</p>
+    <footer class="copyright">© 2026 La team Jardins Secrets (NathandMalo). Tous droits réservés.</footer>
   </section>
 
   <!-- ================= SÉANCE ================= -->
