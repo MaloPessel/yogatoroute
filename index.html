@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yogatoroute — Votre aire de récupération sur l'autoroute</title>
 <meta name="description" content="Quelques minutes de respiration, d'étirement ou de récupération guidée sur l'aire de repos avant de reprendre la route : moins de stress, plus d'attention au volant.">
-<meta name="theme-color" content="#FBF3DA">
+<meta name="theme-color" content="#F3E4EC">
 <link rel="icon" type="image/png" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,26 +17,28 @@
     --encre:#33302B;          /* texte principal — AAA sur fond clair */
     --encre-douce:#6A625A;    /* texte secondaire — AA garanti */
 
-    /* ---- Doré : couleur de marque persistante (fil rouge) ---- */
-    --dore:#C9A227;
+    /* ---- Doré : fil conducteur CONSTANT, présent dans les 3 sections (logo + tags) ---- */
+    --dore:#C9A227;           /* doré vif — logo (exempt WCAG) */
+    --dore-fort:#7C6410;      /* doré foncé lisible — texte des tags, AA sur clair */
+    --dore-pale:#FBF3DA;      /* doré très pâle — fond des tags */
 
-    /* ---- RESPIRATION · Doré ---- */
-    --resp-accent:#C9A227;
-    --resp-fort:#7C6410;      /* texte/titres — AA sur blanc */
-    --resp-doux:#E3C766;
-    --resp-pale:#FBF3DA;
+    /* ---- RESPIRATION · Doré & Violet pâle (le mix d'origine) ---- */
+    --resp-accent:#8B5A79;    /* remplissages — blanc dessus AA (5,5:1) */
+    --resp-fort:#6E3E5C;      /* texte/titres — AA sur blanc (8,4:1) et sur pâle (6,8:1) */
+    --resp-doux:#C9A2BE;
+    --resp-pale:#F3E4EC;      /* le violet pâle d'origine */
 
-    /* ---- ÉTIREMENT · Vert sauge ---- */
+    /* ---- ÉTIREMENT · Doré & Vert sauge ---- */
     --etir-accent:#7FA06E;
     --etir-fort:#43603A;      /* texte/titres — AA sur blanc */
     --etir-doux:#AEC59F;
     --etir-pale:#EDF3E7;
 
-    /* ---- RÉCUPÉRATION RAPIDE · Violet pâle (clin d'œil au mauve d'origine) ---- */
-    --recup-accent:#8B5A79;   /* remplissages — blanc dessus AA (5,5:1) */
-    --recup-fort:#6E3E5C;     /* texte/titres — AA sur blanc (8,4:1) et sur pâle (6,8:1) */
-    --recup-doux:#C9A2BE;
-    --recup-pale:#F3E4EC;     /* le violet pâle nostalgique */
+    /* ---- RÉCUPÉRATION RAPIDE · Doré & Bleu nuit ---- */
+    --recup-accent:#47598C;
+    --recup-fort:#2E3C63;     /* texte/titres — AA sur blanc */
+    --recup-doux:#8C99BE;
+    --recup-pale:#E7EAF4;
 
     /* ---- Variables actives (réécrites par section) ---- */
     --accent:var(--resp-accent);
@@ -142,7 +144,6 @@
     background:var(--accent);color:#fff;
     box-shadow:0 3px 10px rgba(51,48,43,.14);
   }
-  .app[data-section="respiration"] .onglet[aria-selected="true"]{color:#2a2205;} /* le doré est clair : texte sombre pour le contraste */
 
   .question{
     font-size:.8rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
@@ -178,9 +179,8 @@
   .carte-exo .tag{
     margin-left:auto;flex-shrink:0;
     font-size:.72rem;font-weight:700;
-    color:var(--accent-fort);background:var(--accent-pale);
+    color:var(--dore-fort);background:var(--dore-pale);  /* doré constant : le fil conducteur du duo */
     padding:5px 10px;border-radius:999px;white-space:nowrap;
-    transition:color .4s ease, background .4s ease;
   }
 
   .note-secu{
@@ -254,7 +254,6 @@
   .btn:hover{transform:translateY(-2px);}
   .btn:active{transform:translateY(0);}
   .btn-primary{background:var(--accent);color:#fff;}
-  .app[data-section="respiration"] .btn-primary{color:#2a2205;} /* doré clair → texte sombre */
   .btn-secondary{background:transparent;color:var(--accent-fort);border:2px solid var(--accent-fort);}
 
   /* ---------- Fin ---------- */
