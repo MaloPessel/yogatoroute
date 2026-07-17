@@ -592,15 +592,18 @@
       if (p && p.catch) p.catch(() => arreterVoix(true)); // bloqué → on remonte la musique
     }catch(e){ arreterVoix(true); }
   }
-  // Déverrouille les 3 voix via le geste utilisateur (clic « Lancer ») — clé sur iOS/Safari.
-  let voixAmorcees = false;
-  function amorcerVoix(){
-    if (voixAmorcees) return;
-    voixAmorcees = true;
-    [A.inspire, A.bloque, A.expire].forEach(el => {
+  // Déverrouille TOUS les sons via le geste utilisateur (clic « Lancer »).
+  // Indispensable sur Chrome mobile / iOS Safari : ding.mp3 et music.mp3 sont sinon
+  // bloqués car déclenchés plus tard (intro, timers) hors du geste initial. On amorce
+  // donc chaque élément par une lecture muette synchrone, puis on le remet à zéro.
+  let audioDeverrouille = false;
+  function deverrouillerAudio(){
+    if (audioDeverrouille) return;
+    audioDeverrouille = true;
+    [A.ding, A.music, A.inspire, A.bloque, A.expire].forEach(el => {
       try{
         el.muted = true;
-        const p = el.play();
+        const p = el.play();   // play() synchrone dans le geste = clé du déverrouillage
         const relacher = () => { try{ el.pause(); el.currentTime = 0; }catch(e){} el.muted = false; };
         if (p && p.then) p.then(relacher).catch(() => { el.muted = false; });
         else relacher();
@@ -721,7 +724,7 @@
   /* ---------- Lancement d'un exercice ---------- */
   async function lancerExo(sectionId, cle){
     arreterTout();
-    amorcerVoix();                  // déverrouille les voix dans le geste utilisateur (clic)
+    deverrouillerAudio();           // déverrouille tous les sons (ding, musique, voix) dans le geste utilisateur
     const jeton = jetonLancement;   // toute action ultérieure (arrêt, autre exercice) fera diverger ce jeton
     sectionCourante = sectionId;
     voixActive = (sectionId === "respiration");  // repères vocaux réservés aux exercices de respiration
