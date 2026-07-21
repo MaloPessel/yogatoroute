@@ -23,6 +23,19 @@ La refonte visuelle (prototype *« Yogatoroute – Prototype 1a »*, projet clau
 
 ---
 
+## 0.1 Itération 2 — retours clients (implémentée)
+
+Nouveautés ajoutées lors d'une seconde passe de retours, **sans toucher au design, aux couleurs ni à la base technique** :
+
+- **Textes** : dans *Réveiller les jambes* la **fente gauche** porte aussi « dos droit » ; dans *Réveil express* l'étirement des bras devient « **Étirez les bras vers le ciel le plus loin possible** » (sous-consigne « allongez bien le dos » ; imperatif, cohérent avec la voix de l'app) ; dans *Détente éclair* la dernière étape ajoute « **fermez les yeux** ».
+- **Texte d'intro déplacé** : le message de préparation n'est plus dans la bulle — le libellé « Préparez-vous… » coiffe une **sous-consigne placée AU-DESSUS de la bulle** (`.sous-consigne` remontée entre `.phase-label` et `.scene`). Seul le décompte reste au centre de la bulle.
+- **Contrôles multimédia** (`#controles`) sous la barre de progression : **Recule / Pause-Lecture / Avance**, reliés au minuteur (`basculerPause`, `phaseSuivante`, `phasePrecedente` via `sauterA` qui recale `t0`). Actifs pendant l'exercice, désactivés (`.inactif`) pendant l'intro/fin. Raccourcis clavier : **Espace** (pause), **←/→** (mouvement précédent/suivant).
+- **Musique dynamique par section** : `demarrerMusique(section)` charge `assets/music-<section>.mp3` (respiration / etirement / recuperation) avec **repli automatique et mémorisé** sur `assets/music.mp3` si le fichier est absent → *déposer les 3 pistes dans `assets/` pour les activer*, aucune régression tant qu'elles manquent.
+- **Icône Étirements** = personnage `bonhomme` (bras en l'air, jambes écartées, inspiré du logo), en remplacement de la feuille — onglet **et** cartes/en-tête de la section.
+- **Personnage animé « mime »** (SVG inline `#bonhomme`, animé en CSS) au centre de la scène pour **Étirements** et **Récup' exercice 3 (Recharge)** : chaque phase porte un mot-clé `mime` (`incline-d/g`, `bras-ciel`, `epaules`, `souffle-in/out`, `jambe-d/g`, `dos-rond`, `secouer`, `idle`) joué **en rythme** (`--mime-dur` = durée de la phase). Figé en pause et en `prefers-reduced-motion`.
+
+---
+
 ## 1. Concept et Objectif
 
 **Yogatoroute** est une application web mono-page de **pauses guidées destinées aux conducteurs sur les aires de repos d'autoroute**. Le message porté par l'interface est explicite : la pratique se fait *« à l'arrêt, moteur coupé, sur une aire de repos »*, dans le but de réduire le stress et d'améliorer l'attention au volant (`<title>`, meta `description`, note de sécurité `.note-secu`).
@@ -32,7 +45,7 @@ L'app propose **3 familles de pauses** (« sections »), chacune avec ses propre
 | Section | Onglet | Icône (SVG) | Objet |
 |---|---|---|---|
 | `respiration` | Respiration | `wind` | Exercices de respiration rythmée (cohérence cardiaque, 4-7-8, carrée) |
-| `etirement` | Étirement | `leaf` | Séquences d'étirements guidés (nuque, épaules, jambes) |
+| `etirement` | Étirement | `bonhomme` | Séquences d'étirements guidés (nuque, épaules, jambes) |
 | `recuperation` | Récup' rapide | `zap` | Routines courtes anti-fatigue / relâchement (réveil, détente, recharge) |
 
 **Boucle utilisateur (loop principale) :**
@@ -60,11 +73,11 @@ L'expérience est **100 % côté client, sans compte, sans persistance, sans ré
 **Organisation du code JS** (dans l'ordre du fichier) :
 1. `SECTIONS` — objet de **données** décrivant les 3 sections et leurs exercices.
 2. Bloc **Icônes** (`ICONS`, `icon()`, `hydrateIcones()`) — SVG inlinés, aucun réseau.
-3. Bloc **Audio** (`A`, gestion ding / musique / voix, déverrouillage mobile).
+3. Bloc **Audio** (`A`, ding / **musique dynamique par section** `demarrerMusique` / voix, déverrouillage mobile).
 4. Bloc **animation de la bulle** (échelles, easing).
 5. Bloc **état de session** (variables globales).
 6. Bloc **navigation / rendu** (`montrer`, `choisirSection`, `rendreListe`, thème).
-7. Bloc **moteur de séance** (`construireTimeline`, `lancerExo`, `boucle`, `conclure`, `afficherFin`, `goNext`, `refaire`, arrêts).
+7. Bloc **moteur de séance** (`construireTimeline`, `lancerExo`, `rendreFrame`/`boucle`, `majMime`, **contrôles** `basculerPause`/`phaseSuivante`/`phasePrecedente`, `conclure`, `afficherFin`, `goNext`, `refaire`, arrêts).
 
 **Modèle de rendu des écrans** : les 3 `<section class="ecran">` (accueil / séance / fin) coexistent dans le DOM ; une seule porte la classe `.actif` (les autres sont `display:none`). `montrer(id)` bascule cette classe. Aucun routeur, pas d'URL/hash.
 
@@ -151,7 +164,7 @@ Animation : rampe adoucie par `easeInOut` (demi-cosinus) ; `inspire`/`expire` su
 
 **Inventaire des exercices (9 au total)** *(titres et durées d'origine ; icône SVG entre parenthèses)* :
 - Respiration : `coherence` « Relâcher la pression » (`waves`, 5 min), `478` « Calmer l'anxiété » (`moon`, 3 min), `carree` « Se recentrer » (`square`, 4 min).
-- Étirement : `nuque` « Dénouer la nuque » (`leaf`, 2 min), `epaules` « Ouvrir les épaules » (`leaf`, 3 min), `jambes` « Réveiller les jambes » (`leaf`, 3 min).
+- Étirement : `nuque` « Dénouer la nuque » (`bonhomme`, 2 min), `epaules` « Ouvrir les épaules » (`bonhomme`, 3 min), `jambes` « Réveiller les jambes » (`bonhomme`, 3 min). *(les 3 portent `mime:true` → personnage animé)*
 - Récupération : `reveil` « Réveil express » (`zap`, 2 min), `detente` « Détente éclair » (`droplet`, 90 s), `recharge` « Recharge complète » (`battery-charging`, 3 min).
 
 ### 4.2 Assets audio (`assets/`)
@@ -160,7 +173,8 @@ Objet `A` = 5 éléments `Audio` (`preload="auto"`) :
 | Fichier | Rôle | Détails |
 |---|---|---|
 | `ding.mp3` (~101 Ko) | **Cloche** de début/fin de séance | `volume 0.7`, durée déclarée `DING_DUREE = 2 s` |
-| `music.mp3` (~7,5 Mo) | **Musique d'ambiance** en boucle pendant l'exercice | `loop = true`, `volume` nominal `0.35`, baissé à `0.15` (ducking) pendant un repère vocal |
+| `music.mp3` (~7,5 Mo) | **Musique d'ambiance** — piste de **repli** commune | `loop = true`, `volume` nominal `0.35`, baissé à `0.15` (ducking) pendant un repère vocal |
+| `music-{respiration,etirement,recuperation}.mp3` *(à fournir)* | **Bande-son propre à chaque section** (musique dynamique) | Chargées par `demarrerMusique(section)` ; repli mémorisé sur `music.mp3` si absentes |
 | `inspire.mp3` | Repère vocal **« inspirez »** | joué à l'entrée d'une phase `inspire` |
 | `bloque.mp3` | Repère vocal **« bloquez »** (rétention) | phase `pause` |
 | `expire.mp3` | Repère vocal **« expirez »** | phase `expire` |
@@ -246,7 +260,7 @@ Objet `A` = 5 éléments `Audio` (`preload="auto"`) :
 | `#ecran-accueil` (`.accueil`) | Titre à banderole dorée, intro, `.onglets` (tablist ARIA), `.question`, `.choix` (cartes), note sécurité (icône `car`), copyright |
 | `.onglets` / `.onglet` | Sélecteur de section (icône SVG + libellé, `role="tab"`, `aria-selected`) |
 | `.carte-exo` | Carte exercice (**pastille icône SVG** + titre + méta + **tag doré**) — **générée en JS** |
-| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + fermer (×) ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte` **au centre de la bulle**) ; `#phase`, `#sous-consigne` ; `.progression`>`#barre`, `#temps-restant` |
+| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + fermer (×) ; `#phase` puis `#sous-consigne` **au-dessus de la bulle** ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte`, personnage `#bonhomme`) ; `.progression`>`#barre`, `#temps-restant` ; **`#controles`** (Recule / Pause / Avance) |
 | `#ecran-fin` (`.fin`) | Pastille `check` + titre « Bien joué. Bonne route ! » + texte + **`.recap`** (durée / respirations-mouvements) + **`.enchainer`** (carte suggérée) + boutons **Refaire** / **Faire un autre exercice** |
 
 ### 6.2 Fonctions clés (JS)
@@ -259,7 +273,10 @@ Objet `A` = 5 éléments `Audio` (`preload="auto"`) :
 | `lancerExo(section, cle)` | **Orchestrateur de séance** (async) : intro, cloche, musique, démarrage boucle |
 | `construireTimeline(exo)` | Aplatit `souffle`/`sequence` en `timeline` + `bornes` + échelles |
 | `echelleDe(phase, tIn)` / `easeInOut` | Calcule l'échelle instantanée de la bulle (animation organique) |
-| `boucle()` | **Cœur temps réel** : une horloge rAF pilote texte, décompte, bulle, barre, voix |
+| `rendreFrame(elapsed)` / `boucle()` | Rendu d'une image à un instant donné (texte, décompte, bulle, barre, mime, voix) ; `boucle` = horloge rAF qui l'appelle |
+| `majMime(phase)` | Met le personnage `#bonhomme` en phase avec le mouvement (`--mime-dur`, classe `mv-…`) |
+| `basculerPause` / `phaseSuivante` / `phasePrecedente` / `sauterA` | **Contrôles multimédia** : pause-reprise (recale `t0`), saut de mouvement |
+| `demarrerMusique(section)` | Musique dynamique par section (repli mémorisé sur `music.mp3`) |
 | `conclure()` | Fin d'exercice : arrêt audio, message outro, cloche → `afficherFin()` + écran fin |
 | `afficherFin()` | Remplit l'écran fin : `finTexte`, récapitulatif (durée + respirations/mouvements), carte d'enchaînement |
 | `goNext()` / `refaire()` | Lance l'exercice suggéré (`NEXT`) / relance l'exercice courant |

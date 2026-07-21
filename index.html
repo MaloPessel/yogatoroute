@@ -233,7 +233,7 @@
   .phase-label{
     font-family:'Bricolage Grotesque',sans-serif;font-weight:500;
     font-size:1.15rem;line-height:1.25;color:var(--accent-fort);
-    text-align:center;max-width:300px;min-height:1.25em;margin-bottom:10px;
+    text-align:center;max-width:300px;min-height:1.25em;margin-bottom:4px;
     transition:color .4s ease;
   }
   .scene{
@@ -264,12 +264,85 @@
     font-size:clamp(3rem,15vw,4rem);color:var(--accent-fort);
     font-variant-numeric:tabular-nums;line-height:1;transition:color .4s ease;
   }
+  /* Déplacé AU-DESSUS de la bulle (lisibilité) : sert d'intro puis de sous-consigne */
   .sous-consigne{
     font:400 .84rem 'Karla';color:var(--encre-douce);text-align:center;
-    max-width:250px;min-height:1.2em;margin-top:14px;
+    max-width:270px;min-height:1.2em;margin:0 0 16px;
   }
 
+  /* ---------- Personnage animé « mime » (Étirements + Récup' exercice 3) ---------- */
+  .bonhomme-anim{
+    position:absolute;width:64%;height:64%;
+    top:44%;left:50%;transform:translate(-50%,-50%);
+    color:var(--accent-fort);display:none;pointer-events:none;
+    transition:color .4s ease;
+  }
+  .scene.avec-mime .bonhomme-anim{display:block;}
+  /* En mode mime, le décompte passe en petit, au bas de la scène */
+  .scene.avec-mime .compte{
+    position:absolute;top:auto;bottom:3%;left:0;right:0;
+    text-align:center;font-size:1.55rem;
+  }
+  /* transform-box:view-box → les transform-origin sont exprimées dans le repère du viewBox */
+  .bonhomme-anim g,.bonhomme-anim line,.bonhomme-anim circle{transform-box:view-box;}
+  .bonhomme-anim .m-tout{transform-origin:50px 52px;animation:m-idle 4.5s ease-in-out infinite;}
+  .bonhomme-anim .m-haut{transform-origin:50px 62px;}
+  .bonhomme-anim .m-tete{transform-origin:50px 31px;}
+  .bonhomme-anim .m-bras-g,.bonhomme-anim .m-bras-d{transform-origin:50px 38px;}
+  .bonhomme-anim .m-jambe-g,.bonhomme-anim .m-jambe-d{transform-origin:50px 62px;}
+  @keyframes m-idle{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+
+  /* Inclinaisons du buste (penché / regard / inclinaison) */
+  .mv-incline-d .m-haut{animation:k-incd var(--mime-dur,4s) ease-out both;}
+  .mv-incline-g .m-haut{animation:k-incg var(--mime-dur,4s) ease-out both;}
+  @keyframes k-incd{0%{transform:rotate(0)}40%{transform:rotate(15deg)}100%{transform:rotate(15deg)}}
+  @keyframes k-incg{0%{transform:rotate(0)}40%{transform:rotate(-15deg)}100%{transform:rotate(-15deg)}}
+  /* Dos rond / menton vers la poitrine */
+  .mv-dos-rond .m-haut{animation:k-dos var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-tete{animation:k-menton var(--mime-dur,4s) ease-out both;}
+  @keyframes k-dos{0%{transform:rotate(0)}45%{transform:translateY(3px) rotate(6deg)}100%{transform:translateY(3px) rotate(6deg)}}
+  @keyframes k-menton{0%{transform:rotate(0)}45%{transform:rotate(16deg)}100%{transform:rotate(16deg)}}
+  /* Bras vers le ciel (maintien) */
+  .mv-bras-ciel .m-bras-g{animation:k-braceG var(--mime-dur,4s) ease-out both;}
+  .mv-bras-ciel .m-bras-d{animation:k-braceD var(--mime-dur,4s) ease-out both;}
+  @keyframes k-braceG{0%{transform:rotate(0)}45%{transform:rotate(22deg)}100%{transform:rotate(22deg)}}
+  @keyframes k-braceD{0%{transform:rotate(0)}45%{transform:rotate(-22deg)}100%{transform:rotate(-22deg)}}
+  /* Roulement d'épaules (boucle) */
+  .mv-epaules .m-bras-g,.mv-epaules .m-bras-d{animation:k-roll 1.9s ease-in-out infinite;}
+  @keyframes k-roll{0%{transform:rotate(0)}25%{transform:rotate(11deg) translateY(-2px)}50%{transform:rotate(0)}75%{transform:rotate(-11deg) translateY(2px)}100%{transform:rotate(0)}}
+  /* Respiration active (recharge) : bras montent (inspire) / descendent (expire) sur la phase */
+  .mv-souffle-in .m-bras-g{animation:k-inG var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-in .m-bras-d{animation:k-inD var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-bras-g{animation:k-outG var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-bras-d{animation:k-outD var(--mime-dur,5s) ease-in-out both;}
+  @keyframes k-inG{from{transform:rotate(-32deg)}to{transform:rotate(24deg)}}
+  @keyframes k-inD{from{transform:rotate(32deg)}to{transform:rotate(-24deg)}}
+  @keyframes k-outG{from{transform:rotate(24deg)}to{transform:rotate(-32deg)}}
+  @keyframes k-outD{from{transform:rotate(-24deg)}to{transform:rotate(32deg)}}
+  /* Jambes : lever une jambe (talon-fesse / fente / marche) */
+  .mv-jambe-d .m-jambe-d{animation:k-jbD var(--mime-dur,4s) ease-out both;}
+  .mv-jambe-g .m-jambe-g{animation:k-jbG var(--mime-dur,4s) ease-out both;}
+  @keyframes k-jbD{0%{transform:rotate(0)}40%{transform:rotate(-26deg)}100%{transform:rotate(-26deg)}}
+  @keyframes k-jbG{0%{transform:rotate(0)}40%{transform:rotate(26deg)}100%{transform:rotate(26deg)}}
+  /* Secouer (bras + jambes) */
+  .mv-secouer .m-bras-g,.mv-secouer .m-bras-d,.mv-secouer .m-jambe-g,.mv-secouer .m-jambe-d{animation:k-shake .4s ease-in-out infinite;}
+  @keyframes k-shake{0%,100%{transform:rotate(-6deg)}50%{transform:rotate(6deg)}}
+
   .seance-bottom{display:flex;flex-direction:column;gap:8px;}
+
+  /* ---------- Barre de contrôle multimédia ---------- */
+  .controles{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:6px;}
+  .ctrl{
+    width:44px;height:44px;flex:none;border-radius:50%;
+    border:1px solid rgba(51,48,43,.16);background:var(--blanc-brume);color:var(--accent-fort);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background .2s ease,transform .12s ease,opacity .2s ease,color .4s ease;
+  }
+  .ctrl:hover{background:var(--accent-pale);}
+  .ctrl:active{transform:scale(.94);}
+  .ctrl-play{width:56px;height:56px;background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 8px 18px -8px rgba(51,48,43,.5);transition:background .3s ease,transform .12s ease;}
+  .ctrl-play:hover{background:var(--accent);filter:brightness(1.06);}
+  .controles.inactif .ctrl{opacity:.4;pointer-events:none;}
   .prog-labels{
     display:flex;align-items:center;justify-content:space-between;
     font:600 .74rem 'Karla';color:var(--encre-douce);
@@ -339,12 +412,19 @@
   .btn-ghost{flex:none;min-width:120px;background:transparent;color:var(--accent-fort);border:1px solid rgba(51,48,43,.16);}
   .btn-primary{flex:1;background:var(--accent);color:#fff;border:1px solid transparent;}
 
+  /* En pause : on fige le halo et le personnage (la bulle est déjà figée, rAF stoppé) */
+  .seance.en-pause .halo,
+  .seance.en-pause .bonhomme-anim g,
+  .seance.en-pause .bonhomme-anim line,
+  .seance.en-pause .bonhomme-anim circle{animation-play-state:paused;}
+
   /* ---------- Focus visible & mouvement réduit ---------- */
   :focus-visible{outline:3px solid var(--accent-fort);outline-offset:2px;border-radius:8px;}
   @media (prefers-reduced-motion:reduce){
-    .btn,.carte-exo,.next-card,.onglet,.progression div{transition:none;}
+    .btn,.carte-exo,.next-card,.onglet,.progression div,.ctrl{transition:none;}
     .carte-exo{animation:none;}
     .halo{animation:none;}
+    .bonhomme-anim *{animation:none!important;} /* figure figée en posture d'étirement */
   }
 </style>
 </head>
@@ -363,7 +443,7 @@
 
     <div class="onglets" role="tablist" aria-label="Type de pause">
       <button class="onglet" data-section="respiration"  role="tab" aria-selected="true"  onclick="choisirSection('respiration')"><span data-icon="wind" data-size="20"></span>Respiration</button>
-      <button class="onglet" data-section="etirement"     role="tab" aria-selected="false" onclick="choisirSection('etirement')"><span data-icon="leaf" data-size="20"></span>Étirement</button>
+      <button class="onglet" data-section="etirement"     role="tab" aria-selected="false" onclick="choisirSection('etirement')"><span data-icon="bonhomme" data-size="20"></span>Étirement</button>
       <button class="onglet" data-section="recuperation"  role="tab" aria-selected="false" onclick="choisirSection('recuperation')"><span data-icon="zap" data-size="20"></span>Récup' rapide</button>
     </div>
 
@@ -389,13 +469,26 @@
 
     <div class="scene-wrap">
       <span class="phase-label" id="phase" aria-live="polite">Préparez-vous…</span>
-      <div class="scene">
+      <p class="sous-consigne" id="sous-consigne" aria-live="polite">&nbsp;</p>
+      <div class="scene" id="scene">
         <span class="halo" aria-hidden="true"></span>
         <span class="anneau" aria-hidden="true"></span>
         <span class="cercle" id="cercle" aria-hidden="true"></span>
+        <!-- Personnage animé « mime » — affiché pour Étirements et Récup' exercice 3 -->
+        <svg id="bonhomme" class="bonhomme-anim" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <g class="m-tout">
+            <g class="m-haut">
+              <circle class="m-tete" cx="50" cy="22" r="9"></circle>
+              <line class="m-torse" x1="50" y1="31" x2="50" y2="62"></line>
+              <line class="m-bras-g" x1="50" y1="38" x2="28" y2="24"></line>
+              <line class="m-bras-d" x1="50" y1="38" x2="72" y2="24"></line>
+            </g>
+            <line class="m-jambe-g" x1="50" y1="62" x2="34" y2="90"></line>
+            <line class="m-jambe-d" x1="50" y1="62" x2="66" y2="90"></line>
+          </g>
+        </svg>
         <span class="compte" id="compte" aria-hidden="true"></span>
       </div>
-      <p class="sous-consigne" id="sous-consigne">&nbsp;</p>
     </div>
 
     <div class="seance-bottom">
@@ -404,6 +497,12 @@
         <span class="restant"><span data-icon="clock" data-size="13"></span><span id="temps-restant"></span></span>
       </div>
       <div class="progression" aria-hidden="true"><div id="barre"></div></div>
+      <!-- Contrôles multimédia — reliés au minuteur et à l'état de l'exercice -->
+      <div class="controles inactif" id="controles">
+        <button class="ctrl" id="btn-recule" type="button" onclick="phasePrecedente()" aria-label="Mouvement précédent"><span data-icon="skip-back" data-size="18"></span></button>
+        <button class="ctrl ctrl-play" id="btn-pause" type="button" onclick="basculerPause()" aria-label="Mettre en pause"><span data-icon="pause" data-size="22"></span></button>
+        <button class="ctrl" id="btn-avance" type="button" onclick="phaseSuivante()" aria-label="Mouvement suivant"><span data-icon="skip-forward" data-size="18"></span></button>
+      </div>
     </div>
   </section>
 
@@ -459,6 +558,11 @@
     'rotate-ccw':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>',
     'shield-check':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>',
     car:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"></path><circle cx="7" cy="17" r="2"></circle><path d="M9 17h6"></path><circle cx="17" cy="17" r="2"></circle></svg>',
+    play:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z"></path></svg>',
+    'skip-back':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.971 4.285A2 2 0 0 1 21 6v12a2 2 0 0 1-3.029 1.715l-9.997-5.998a2 2 0 0 1-.003-3.432z"></path><path d="M3 20V4"></path></svg>',
+    'skip-forward':'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 4v16"></path><path d="M6.029 4.285A2 2 0 0 0 3 6v12a2 2 0 0 0 3.029 1.715l9.997-5.998a2 2 0 0 0 .003-3.432z"></path></svg>',
+    /* bonhomme « étirement » : reprend le personnage du logo — bras en l'air, jambes écartées */
+    bonhomme:'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="4.5" r="2"></circle><path d="M12 6.5v6.5"></path><path d="M12 9 6 5"></path><path d="M12 9 18 5"></path><path d="M12 13 7 20"></path><path d="M12 13 17 20"></path></svg>',
   };
   function icon(nom, taille){
     const s = ICONS[nom]; if (!s) return "";
@@ -508,47 +612,47 @@
       outro: "Les étirements sont terminés.",
       finTexte: "Vos muscles sont détendus. Buvez un peu d'eau et reprenez la route en souplesse.",
       exos: [
-        { cle:"nuque", icon:"leaf", titre:"Dénouer la nuque",
+        { cle:"nuque", icon:"bonhomme", titre:"Dénouer la nuque",
           meta:"Nuque & cervicales · 2 min", tag:"Anti-tensions",
           sousTitre:"Mouvements lents, sans forcer. Respirez profondément.",
-          type:"sequence",
+          type:"sequence", mime:true,
           timeline:[
-            { label:"Penchez la tête à droite",    type:"maintien", dur:20, sub:"vers l'épaule, sans forcer" },
-            { label:"Revenez au centre",           type:"repos",    dur:6 },
-            { label:"Penchez la tête à gauche",    type:"maintien", dur:20, sub:"épaules relâchées" },
-            { label:"Revenez au centre",           type:"repos",    dur:6 },
-            { label:"Menton vers la poitrine",     type:"maintien", dur:20, sub:"étirez l'arrière du cou" },
-            { label:"Regardez lentement à droite", type:"maintien", dur:15 },
-            { label:"Regardez lentement à gauche", type:"maintien", dur:15 },
-            { label:"Revenez, épaules basses",     type:"repos",    dur:8 }
+            { label:"Penchez la tête à droite",    type:"maintien", dur:20, sub:"vers l'épaule, sans forcer", mime:"incline-d" },
+            { label:"Revenez au centre",           type:"repos",    dur:6,  mime:"idle" },
+            { label:"Penchez la tête à gauche",    type:"maintien", dur:20, sub:"épaules relâchées", mime:"incline-g" },
+            { label:"Revenez au centre",           type:"repos",    dur:6,  mime:"idle" },
+            { label:"Menton vers la poitrine",     type:"maintien", dur:20, sub:"étirez l'arrière du cou", mime:"dos-rond" },
+            { label:"Regardez lentement à droite", type:"maintien", dur:15, mime:"incline-d" },
+            { label:"Regardez lentement à gauche", type:"maintien", dur:15, mime:"incline-g" },
+            { label:"Revenez, épaules basses",     type:"repos",    dur:8,  mime:"idle" }
           ] },
-        { cle:"epaules", icon:"leaf", titre:"Ouvrir les épaules",
+        { cle:"epaules", icon:"bonhomme", titre:"Ouvrir les épaules",
           meta:"Épaules & haut du dos · 3 min", tag:"Détente",
           sousTitre:"Idéal après de longues heures les mains sur le volant.",
-          type:"sequence",
+          type:"sequence", mime:true,
           timeline:[
-            { label:"Roulez les épaules en arrière", type:"maintien", dur:20, sub:"grands cercles lents" },
-            { label:"Roulez les épaules en avant",   type:"maintien", dur:20 },
-            { label:"Bras droit devant la poitrine", type:"maintien", dur:25, sub:"tirez avec l'autre main" },
-            { label:"Bras gauche devant la poitrine",type:"maintien", dur:25 },
-            { label:"Étirez les bras vers le ciel",  type:"maintien", dur:20, sub:"grandissez-vous" },
-            { label:"Arrondissez le dos",            type:"maintien", dur:22, sub:"menton rentré" },
-            { label:"Ouvrez la poitrine",            type:"maintien", dur:22, sub:"mains croisées derrière le dos" },
-            { label:"Relâchez tout",                 type:"repos",    dur:10 }
+            { label:"Roulez les épaules en arrière", type:"maintien", dur:20, sub:"grands cercles lents", mime:"epaules" },
+            { label:"Roulez les épaules en avant",   type:"maintien", dur:20, mime:"epaules" },
+            { label:"Bras droit devant la poitrine", type:"maintien", dur:25, sub:"tirez avec l'autre main", mime:"incline-g" },
+            { label:"Bras gauche devant la poitrine",type:"maintien", dur:25, mime:"incline-d" },
+            { label:"Étirez les bras vers le ciel",  type:"maintien", dur:20, sub:"grandissez-vous", mime:"bras-ciel" },
+            { label:"Arrondissez le dos",            type:"maintien", dur:22, sub:"menton rentré", mime:"dos-rond" },
+            { label:"Ouvrez la poitrine",            type:"maintien", dur:22, sub:"mains croisées derrière le dos", mime:"bras-ciel" },
+            { label:"Relâchez tout",                 type:"repos",    dur:10, mime:"idle" }
           ] },
-        { cle:"jambes", icon:"leaf", titre:"Réveiller les jambes",
+        { cle:"jambes", icon:"bonhomme", titre:"Réveiller les jambes",
           meta:"Hanches & jambes · 3 min", tag:"Circulation",
           sousTitre:"Debout près du véhicule, gardez un appui stable.",
-          type:"sequence",
+          type:"sequence", mime:true,
           timeline:[
-            { label:"Montez sur la pointe des pieds", type:"maintien", dur:18, sub:"puis redescendez lentement" },
-            { label:"Talon-fesse, jambe droite",      type:"maintien", dur:20, sub:"appui stable" },
-            { label:"Talon-fesse, jambe gauche",      type:"maintien", dur:20 },
-            { label:"Fente avant douce à droite",     type:"maintien", dur:25, sub:"dos droit" },
-            { label:"Fente avant douce à gauche",     type:"maintien", dur:25 },
-            { label:"Rotations du bassin",            type:"maintien", dur:20, sub:"dans un sens" },
-            { label:"Rotations du bassin",            type:"maintien", dur:20, sub:"puis dans l'autre" },
-            { label:"Secouez les jambes, relâchez",   type:"repos",    dur:10 }
+            { label:"Montez sur la pointe des pieds", type:"maintien", dur:18, sub:"puis redescendez lentement", mime:"bras-ciel" },
+            { label:"Talon-fesse, jambe droite",      type:"maintien", dur:20, sub:"appui stable", mime:"jambe-d" },
+            { label:"Talon-fesse, jambe gauche",      type:"maintien", dur:20, mime:"jambe-g" },
+            { label:"Fente avant douce à droite",     type:"maintien", dur:25, sub:"dos droit", mime:"jambe-d" },
+            { label:"Fente avant douce à gauche",     type:"maintien", dur:25, sub:"dos droit", mime:"jambe-g" },
+            { label:"Rotations du bassin",            type:"maintien", dur:20, sub:"dans un sens", mime:"idle" },
+            { label:"Rotations du bassin",            type:"maintien", dur:20, sub:"puis dans l'autre", mime:"idle" },
+            { label:"Secouez les jambes, relâchez",   type:"repos",    dur:10, mime:"secouer" }
           ] }
       ]
     },
@@ -572,7 +676,7 @@
             { label:"Soufflez fort par la bouche",            type:"expire",   dur:4 },
             { label:"Inspirez à fond par le nez",             type:"inspire",  dur:4 },
             { label:"Soufflez fort par la bouche",            type:"expire",   dur:4 },
-            { label:"Étirez-vous en grand",                   type:"maintien", dur:18, sub:"bras vers le ciel" },
+            { label:"Étirez les bras vers le ciel le plus loin possible", type:"maintien", dur:18, sub:"allongez bien le dos" },
             { label:"Massez la nuque et les tempes",          type:"maintien", dur:20 },
             { label:"Ouvrez grand les yeux, respirez",        type:"repos",    dur:10 }
           ] },
@@ -589,24 +693,24 @@
             { label:"Expirez longuement",     type:"expire",   dur:8 },
             { label:"Inspirez lentement",     type:"inspire",  dur:5 },
             { label:"Expirez longuement",     type:"expire",   dur:8 },
-            { label:"Corps lourd et détendu", type:"repos",    dur:15, sub:"savourez le calme" }
+            { label:"Corps lourd et détendu", type:"repos",    dur:15, sub:"fermez les yeux, savourez le calme" }
           ] },
         { cle:"recharge", icon:"battery-charging", titre:"Recharge complète",
           meta:"Regain d'énergie · 3 min", tag:"Énergie",
           sousTitre:"Alterne respiration active et mobilité pour repartir en forme.",
-          type:"sequence",
+          type:"sequence", mime:true,
           timeline:[
-            { label:"Inspirez en levant les bras",  type:"inspire",  dur:5, sub:"ouvrez la cage thoracique" },
-            { label:"Expirez en baissant les bras", type:"expire",   dur:5 },
-            { label:"Inspirez en levant les bras",  type:"inspire",  dur:5 },
-            { label:"Expirez en baissant les bras", type:"expire",   dur:5 },
-            { label:"Rotations des épaules",        type:"maintien", dur:20 },
-            { label:"Inclinez le buste à droite",   type:"maintien", dur:20, sub:"étirez le côté" },
-            { label:"Inclinez le buste à gauche",   type:"maintien", dur:20 },
-            { label:"Marchez sur place, énergique",  type:"maintien", dur:25, sub:"montez les genoux" },
-            { label:"Grande inspiration",           type:"inspire",  dur:5 },
-            { label:"Longue expiration, souriez",   type:"expire",   dur:7 },
-            { label:"Respirez, prêt·e à repartir",  type:"repos",    dur:15 }
+            { label:"Inspirez en levant les bras",  type:"inspire",  dur:5, sub:"ouvrez la cage thoracique", mime:"souffle-in" },
+            { label:"Expirez en baissant les bras", type:"expire",   dur:5, mime:"souffle-out" },
+            { label:"Inspirez en levant les bras",  type:"inspire",  dur:5, mime:"souffle-in" },
+            { label:"Expirez en baissant les bras", type:"expire",   dur:5, mime:"souffle-out" },
+            { label:"Rotations des épaules",        type:"maintien", dur:20, mime:"epaules" },
+            { label:"Inclinez le buste à droite",   type:"maintien", dur:20, sub:"étirez le côté", mime:"incline-d" },
+            { label:"Inclinez le buste à gauche",   type:"maintien", dur:20, mime:"incline-g" },
+            { label:"Marchez sur place, énergique",  type:"maintien", dur:25, sub:"montez les genoux", mime:"jambe-d" },
+            { label:"Grande inspiration",           type:"inspire",  dur:5, mime:"souffle-in" },
+            { label:"Longue expiration, souriez",   type:"expire",   dur:7, mime:"souffle-out" },
+            { label:"Respirez, prêt·e à repartir",  type:"repos",    dur:15, mime:"idle" }
           ] }
       ]
     }
@@ -642,6 +746,37 @@
   const MUSIQUE_VOL = 0.35, MUSIQUE_VOL_DUCK = 0.15;
   A.music.volume = MUSIQUE_VOL;
   const VOIX = { inspire: A.inspire, pause: A.bloque, expire: A.expire };
+
+  /* --- Musique dynamique : une bande-son par section, avec repli automatique ---
+     Déposez les 3 pistes dans assets/ pour les activer ; tant qu'elles sont absentes,
+     l'app se rabat proprement sur music.mp3 (aucune régression). --- */
+  const MUSIQUE_SRC = {
+    respiration:  "assets/music-respiration.mp3",
+    etirement:    "assets/music-etirement.mp3",
+    recuperation: "assets/music-recuperation.mp3"
+  };
+  const MUSIQUE_REPLI = "assets/music.mp3";   // piste par défaut, toujours présente
+  const _musiqueKO = {};                      // pistes absentes déjà repérées (repli mémorisé)
+  function _memeSrc(url){ return A.music.src.endsWith(url) || (A.music.currentSrc || "").endsWith(url); }
+  function _jouerSrc(url){
+    try{
+      if (!_memeSrc(url)) A.music.src = url;
+      A.music.currentTime = 0; A.music.volume = MUSIQUE_VOL;
+      const p = A.music.play(); if (p && p.catch) p.catch(() => {});
+    }catch(e){}
+  }
+  // Charge et joue la piste de la section ; si le fichier est absent/illisible → repli music.mp3.
+  function demarrerMusique(section){
+    const primaire = (!_musiqueKO[section] && MUSIQUE_SRC[section]) || MUSIQUE_REPLI;
+    A.music.dataset.repli = (primaire === MUSIQUE_REPLI) ? "1" : "0";
+    A.music.onerror = () => {
+      if (A.music.dataset.repli === "1") return;   // le repli a lui-même échoué : silence
+      _musiqueKO[section] = true;                  // on ne réessaiera plus cette piste (moins de bruit)
+      A.music.dataset.repli = "1";
+      _jouerSrc(MUSIQUE_REPLI);
+    };
+    _jouerSrc(primaire);
+  }
 
   const DUREE_INTRO = 5;   // durée totale de l'intro, en secondes
   const DING_DUREE  = 2;   // durée de assets/ding.mp3, en secondes
@@ -732,6 +867,7 @@
   let jetonLancement = 0;
   let voixActive = false;
   let curExo = null, prochain = null;
+  let enPause = false, pauseElapsed = 0;   // contrôles multimédia
 
   const $ = id => document.getElementById(id);
   const $app = document.querySelector(".app");
@@ -824,11 +960,20 @@
     $("seance-sous-titre").textContent = exo.sousTitre;
     $("exo-icone").innerHTML = icon(exo.icon, 20);
 
-    // --- Phase d'introduction (message affiché, puis tintement de cloche) ---
+    // Personnage « mime » : affiché pour les exos concernés (Étirements + Récup' exercice 3)
+    $("scene").classList.toggle("avec-mime", !!exo.mime);
+    $("bonhomme").setAttribute("class", "bonhomme-anim");   // posture neutre pendant l'intro
+
+    // Contrôles : réinitialisés et désactivés pendant l'intro
+    enPause = false; majBoutonPause();
+    $("ecran-seance").classList.remove("en-pause");
+    $("controles").classList.add("inactif");
+
+    // --- Phase d'introduction (message AU-DESSUS de la bulle, puis tintement de cloche) ---
     etat = "intro";
     montrer("ecran-seance");
-    $("phase").textContent = section.intro;
-    $("sous-consigne").innerHTML = "&nbsp;";
+    $("phase").textContent = "Préparez-vous…";
+    $("sous-consigne").textContent = section.intro;   // le petit texte d'intro : hors de la bulle, au-dessus
     $("compte").textContent = "";
     $("barre").style.transform = "scaleX(0)";
     $("temps-restant").textContent = "Encore " + fmt(dureeTotale);
@@ -840,24 +985,32 @@
     await jouerDing();                           // la cloche sonne, l'exercice démarre à la fin du son
     if (abandonne()) return;
 
-    // Musique d'ambiance en boucle pendant l'exercice
-    try{ A.music.currentTime = 0; A.music.volume = MUSIQUE_VOL; const pm = A.music.play(); if (pm && pm.catch) pm.catch(()=>{}); }catch(e){}
+    // Musique d'ambiance : piste propre à la section (repli automatique)
+    demarrerMusique(sectionId);
 
     idxPhaseAffiche = -1; compteAffiche = -1; restantAffiche = -1;
     etat = "exercice";
+    enPause = false; majBoutonPause();
+    $("controles").classList.remove("inactif");  // contrôles actifs pendant l'exercice
     t0 = performance.now();
     rafId = requestAnimationFrame(boucle);
   }
 
-  /* ---------- Boucle d'animation : une seule horloge rAF ---------- */
-  function boucle(){
-    const elapsed = (performance.now() - t0) / 1000;
+  /* Met le personnage « mime » en phase avec le mouvement courant (en rythme) */
+  function majMime(phase){
+    if (!curExo || !curExo.mime) return;
+    const fig = $("bonhomme");
+    fig.style.setProperty("--mime-dur", (phase.dur || 4) + "s");
+    fig.setAttribute("class", "bonhomme-anim mv-" + (phase.mime || "idle"));
+  }
+
+  /* ---------- Rendu d'une image à l'instant `elapsed` (partagé boucle / saut) ---------- */
+  function rendreFrame(elapsed){
     if (elapsed >= dureeTotale){
       placerBulle(timeline[timeline.length - 1].finEchelle);
       $("barre").style.transform = "scaleX(1)";
       $("compte").textContent = "";
-      conclure();
-      return;
+      return true;                               // exercice terminé
     }
     let idx = 0;
     while (idx < timeline.length - 1 && elapsed >= bornes[idx + 1]) idx++;
@@ -868,6 +1021,7 @@
       $("phase").textContent = phase.label;
       $("sous-consigne").innerHTML = phase.sub ? phase.sub : "&nbsp;";
       idxPhaseAffiche = idx;
+      majMime(phase);
       if (voixActive) jouerVoix(phase.type);     // repère vocal pile au changement de phase
     }
     const compte = Math.max(1, Math.ceil(phase.dur - tIn));
@@ -881,7 +1035,68 @@
       $("temps-restant").textContent = restant > 0 ? "Encore " + fmt(restant) : "Terminé";
       restantAffiche = restant;
     }
+    return false;
+  }
+
+  /* ---------- Boucle d'animation : une seule horloge rAF ---------- */
+  function boucle(){
+    if (enPause) return;
+    const elapsed = (performance.now() - t0) / 1000;
+    if (rendreFrame(elapsed)){ conclure(); return; }
     rafId = requestAnimationFrame(boucle);
+  }
+
+  /* ---------- Contrôles multimédia (reliés au minuteur) ---------- */
+  function majBoutonPause(){
+    const b = $("btn-pause"); if (!b) return;
+    b.innerHTML = icon(enPause ? "play" : "pause", 22);
+    b.setAttribute("aria-label", enPause ? "Reprendre" : "Mettre en pause");
+  }
+  function basculerPause(){
+    if (etat !== "exercice") return;
+    if (!enPause){
+      enPause = true;
+      if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
+      pauseElapsed = (performance.now() - t0) / 1000;   // fige l'horloge
+      try{ A.music.pause(); }catch(e){}
+      arreterVoix(false);
+      $("ecran-seance").classList.add("en-pause");       // fige halo + personnage
+    } else {
+      enPause = false;
+      t0 = performance.now() - pauseElapsed * 1000;       // reprend là où on s'était arrêté
+      try{ const p = A.music.play(); if (p && p.catch) p.catch(() => {}); }catch(e){}
+      $("ecran-seance").classList.remove("en-pause");
+      rafId = requestAnimationFrame(boucle);
+    }
+    majBoutonPause();
+  }
+  // Repositionne l'horloge à `target` secondes (fonctionne en lecture comme en pause)
+  function sauterA(target){
+    target = Math.max(0, Math.min(target, Math.max(0, dureeTotale - 0.05)));
+    idxPhaseAffiche = -1; compteAffiche = -1; restantAffiche = -1;
+    if (enPause){ pauseElapsed = target; rendreFrame(target); }   // repeint une image, sans reprendre
+    else { t0 = performance.now() - target * 1000; }              // la boucle en cours prend le relais
+  }
+  function _elapsedCourant(){ return enPause ? pauseElapsed : (performance.now() - t0) / 1000; }
+  function _idxCourant(elapsed){ let i = 0; while (i < timeline.length - 1 && elapsed >= bornes[i + 1]) i++; return i; }
+  function phaseSuivante(){
+    if (etat !== "exercice") return;
+    const idx = _idxCourant(_elapsedCourant());
+    if (idx >= timeline.length - 1){                 // dernière phase → on termine
+      if (enPause){ enPause = false; $("ecran-seance").classList.remove("en-pause"); majBoutonPause(); }
+      if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
+      conclure();
+      return;
+    }
+    sauterA(bornes[idx + 1]);
+  }
+  function phasePrecedente(){
+    if (etat !== "exercice") return;
+    const elapsed = _elapsedCourant();
+    const idx = _idxCourant(elapsed);
+    const tIn = elapsed - bornes[idx];
+    // Bien entamée (> 1,5 s) ou déjà 1re phase → on la reprend ; sinon on recule d'un mouvement
+    sauterA(bornes[(tIn > 1.5 || idx === 0) ? idx : idx - 1]);
   }
 
   /* ---------- Conclusion (message outro + cloche) → écran Fin ---------- */
@@ -892,6 +1107,11 @@
     try{ A.music.pause(); }catch(e){}
     A.music.volume = MUSIQUE_VOL;
     etat = "conclusion";
+
+    // Fin de l'exercice : on neutralise les contrôles
+    enPause = false; majBoutonPause();
+    $("controles").classList.add("inactif");
+    $("ecran-seance").classList.remove("en-pause");
 
     const section = SECTIONS[sectionCourante];
     $("phase").textContent = section.outro;
@@ -939,11 +1159,21 @@
     jetonLancement++;              // invalide tout lancement encore en attente du ding
     if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
     stopAudio();
+    enPause = false; majBoutonPause();
+    const se = $("ecran-seance"); if (se) se.classList.remove("en-pause");
+    const ctr = $("controles"); if (ctr) ctr.classList.add("inactif");
+    const sc = $("scene"); if (sc) sc.classList.remove("avec-mime");
     etat = "accueil";
   }
 
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape" && $("ecran-seance").classList.contains("actif")) allerAccueil();
+    if (!$("ecran-seance").classList.contains("actif")) return;
+    if (e.key === "Escape"){ allerAccueil(); return; }
+    if (etat === "exercice"){                        // raccourcis des contrôles multimédia
+      if (e.key === " " || e.code === "Space"){ e.preventDefault(); basculerPause(); }
+      else if (e.key === "ArrowRight"){ e.preventDefault(); phaseSuivante(); }
+      else if (e.key === "ArrowLeft"){ e.preventDefault(); phasePrecedente(); }
+    }
   });
 
   /* ---------- Amorçage ---------- */
