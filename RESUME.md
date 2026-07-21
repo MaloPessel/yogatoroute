@@ -32,7 +32,19 @@ Nouveautés ajoutées lors d'une seconde passe de retours, **sans toucher au des
 - **Contrôles multimédia** (`#controles`) sous la barre de progression : **Recule / Pause-Lecture / Avance**, reliés au minuteur (`basculerPause`, `phaseSuivante`, `phasePrecedente` via `sauterA` qui recale `t0`). Actifs pendant l'exercice, désactivés (`.inactif`) pendant l'intro/fin. Raccourcis clavier : **Espace** (pause), **←/→** (mouvement précédent/suivant).
 - **Musique dynamique par section** : `demarrerMusique(section)` charge `assets/music-<section>.mp3` (respiration / etirement / recuperation) avec **repli automatique et mémorisé** sur `assets/music.mp3` si le fichier est absent → *déposer les 3 pistes dans `assets/` pour les activer*, aucune régression tant qu'elles manquent.
 - **Icône Étirements** = personnage `bonhomme` (bras en l'air, jambes écartées, inspiré du logo), en remplacement de la feuille — onglet **et** cartes/en-tête de la section.
-- **Personnage animé « mime »** (SVG inline `#bonhomme`, animé en CSS) au centre de la scène pour **Étirements** et **Récup' exercice 3 (Recharge)** : chaque phase porte un mot-clé `mime` (`incline-d/g`, `bras-ciel`, `epaules`, `souffle-in/out`, `jambe-d/g`, `dos-rond`, `secouer`, `idle`) joué **en rythme** (`--mime-dur` = durée de la phase). Figé en pause et en `prefers-reduced-motion`.
+- **Personnage animé « mime »** (SVG inline `#bonhomme`, animé en CSS) au centre de la scène pour **Étirements** et **Récup' exercice 3 (Recharge)** : chaque phase porte un mot-clé `mime` joué **en rythme** (`--mime-dur` = durée de la phase). Figé en pause et en `prefers-reduced-motion`. *(Jeu d'animations enrichi en itération 3 — voir 0.2.)*
+
+---
+
+## 0.2 Itération 3 — réalisme des Étirements (implémentée)
+
+- **Animations « mime » repensées, membre par membre.** Fin du « balancier » global (ancienne rotation de tout le bloc) : le repos (`idle`) est désormais une simple **respiration verticale**. Chaque phase anime précisément les bons membres, en rythme :
+  - *tête* (le corps reste immobile) : `tete-d`/`tete-g` (inclinaisons nuque), `regard-d`/`regard-g`, `menton` ;
+  - *bras* : `bras-ciel`, `souffle-in`/`souffle-out` (montent/descendent), `epaules`/`epaules-av` (roulement), `bras-avant-d`/`g`, `poitrine`, `dos-rond` ;
+  - *buste* : `incline-d`/`incline-g` (inclinaison latérale + bras opposé au-dessus) ;
+  - *jambes* : `pointe`, `talon-d`/`talon-g`, `fente-d`/`fente-g` (corps qui descend + jambes écartées), `marche` (jambes alternées), `bassin`/`bassin-inv`, `secouer`.
+  Chaque membre pivote à **son articulation** (`transform-box:view-box` + `transform-origin` au cou / épaule / hanche), d'où des mouvements réellement indépendants.
+- **3 icônes d'exercice distinctes** (SVG inline, style minimaliste du bonhomme) sur les **cartes** de la section Étirements : `etir-nuque` (tête inclinée, main à la tête), `etir-epaules` (coudes ouverts), `etir-jambes` (fente). L'**onglet** de section garde le bonhomme « étoile » comme identité.
 
 ---
 
@@ -164,7 +176,7 @@ Animation : rampe adoucie par `easeInOut` (demi-cosinus) ; `inspire`/`expire` su
 
 **Inventaire des exercices (9 au total)** *(titres et durées d'origine ; icône SVG entre parenthèses)* :
 - Respiration : `coherence` « Relâcher la pression » (`waves`, 5 min), `478` « Calmer l'anxiété » (`moon`, 3 min), `carree` « Se recentrer » (`square`, 4 min).
-- Étirement : `nuque` « Dénouer la nuque » (`bonhomme`, 2 min), `epaules` « Ouvrir les épaules » (`bonhomme`, 3 min), `jambes` « Réveiller les jambes » (`bonhomme`, 3 min). *(les 3 portent `mime:true` → personnage animé)*
+- Étirement : `nuque` « Dénouer la nuque » (`etir-nuque`, 2 min), `epaules` « Ouvrir les épaules » (`etir-epaules`, 3 min), `jambes` « Réveiller les jambes » (`etir-jambes`, 3 min). *(icônes de carte distinctes ; les 3 portent `mime:true` → personnage animé)*
 - Récupération : `reveil` « Réveil express » (`zap`, 2 min), `detente` « Détente éclair » (`droplet`, 90 s), `recharge` « Recharge complète » (`battery-charging`, 3 min).
 
 ### 4.2 Assets audio (`assets/`)
