@@ -44,6 +44,7 @@ Nouveautés ajoutées lors d'une seconde passe de retours, **sans toucher au des
   - *buste* : `incline-d`/`incline-g` (inclinaison latérale + bras opposé au-dessus) ;
   - *jambes* : `pointe`, `talon-d`/`talon-g`, `fente-d`/`fente-g` (corps qui descend + jambes écartées), `marche` (jambes alternées), `bassin`/`bassin-inv`, `secouer`.
   Chaque membre pivote à **son articulation** (`transform-box:view-box` + `transform-origin` au cou / épaule / hanche), d'où des mouvements réellement indépendants.
+- **Squelette articulé (itération 4)** : le personnage a désormais des **coudes et des genoux** (groupes SVG imbriqués `m-epaule→m-coude`, `m-hanche→m-genou` ; l'enfant pivote avant le parent → l'avant-bras/tibia restent attachés). Cela rend les poses bien plus justes — **fente à genou plié**, **talon-fesse** (tibia replié), étirements de bras coude fléchi (`bras-ciel`, `poitrine`, `dos-rond`, `bras-avant`). Style minimaliste et animation CSS fluides conservés ; figé en pause et `prefers-reduced-motion`.
 - **3 icônes d'exercice distinctes** (SVG inline, style minimaliste du bonhomme) sur les **cartes** de la section Étirements : `etir-nuque` (tête inclinée, main à la tête), `etir-epaules` (coudes ouverts), `etir-jambes` (fente). L'**onglet** de section garde le bonhomme « étoile » comme identité.
 
 ---

@@ -283,71 +283,96 @@
     position:absolute;top:auto;bottom:3%;left:0;right:0;
     text-align:center;font-size:1.55rem;
   }
-  /* transform-box:view-box → transform-origin exprimées dans le repère du viewBox (100×100).
-     Chaque membre pivote à SON articulation → mouvements indépendants, pas de rotation globale. */
+  /* transform-box:view-box → transform-origin dans le repère du viewBox (100×100).
+     SQUELETTE ARTICULÉ : chaque os pivote à son articulation (épaule→coude, hanche→genou).
+     Un groupe enfant tourne AVANT son parent → l'avant-bras / le tibia restent attachés. */
   .bonhomme-anim g,.bonhomme-anim line,.bonhomme-anim circle{transform-box:view-box;}
-  .bonhomme-anim .m-tout{transform-origin:50px 55px;animation:m-respire 4.6s ease-in-out infinite;}
-  .bonhomme-anim .m-haut{transform-origin:50px 60px;}   /* penche à la hanche */
-  .bonhomme-anim .m-tete{transform-origin:50px 30px;}   /* pivote au cou */
-  .bonhomme-anim .m-bras-g,.bonhomme-anim .m-bras-d{transform-origin:50px 36px;} /* épaule */
-  .bonhomme-anim .m-jambe-g,.bonhomme-anim .m-jambe-d{transform-origin:50px 60px;} /* hanche */
-  /* Repos : simple respiration verticale (aucun balancier de tout le bloc) */
-  @keyframes m-respire{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+  .bonhomme-anim .m-tout{transform-origin:50px 50px;animation:m-respire 4.6s ease-in-out infinite;}
+  .bonhomme-anim .m-haut{transform-origin:50px 54px;}          /* buste : penche à la hanche */
+  .bonhomme-anim .m-tete{transform-origin:50px 24px;}          /* cou */
+  .bonhomme-anim .m-epaule-g,.bonhomme-anim .m-epaule-d{transform-origin:50px 30px;}
+  .bonhomme-anim .m-coude-g{transform-origin:44px 43px;}
+  .bonhomme-anim .m-coude-d{transform-origin:56px 43px;}
+  .bonhomme-anim .m-hanche-g,.bonhomme-anim .m-hanche-d{transform-origin:50px 54px;}
+  .bonhomme-anim .m-genou-g{transform-origin:45px 70px;}
+  .bonhomme-anim .m-genou-d{transform-origin:55px 70px;}
+  /* Repos : simple respiration verticale (aucun balancier global) */
+  @keyframes m-respire{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.4px)}}
 
-  /* — Bras vers le ciel (maintien) : les bras s'élèvent réellement au-dessus de la tête — */
-  .mv-bras-ciel .m-bras-g{animation:k-cielG var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
-  .mv-bras-ciel .m-bras-d{animation:k-cielD var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
-  @keyframes k-cielG{0%{transform:rotate(0)}50%{transform:rotate(122deg)}100%{transform:rotate(122deg)}}
-  @keyframes k-cielD{0%{transform:rotate(0)}50%{transform:rotate(-122deg)}100%{transform:rotate(-122deg)}}
-  /* — Respiration active (recharge) : bras montent (inspire) puis redescendent (expire) — */
-  .mv-souffle-in .m-bras-g{animation:k-cielG var(--mime-dur,5s) ease-in-out both;}
-  .mv-souffle-in .m-bras-d{animation:k-cielD var(--mime-dur,5s) ease-in-out both;}
-  .mv-souffle-out .m-bras-g{animation:k-baisseG var(--mime-dur,5s) ease-in-out both;}
-  .mv-souffle-out .m-bras-d{animation:k-baisseD var(--mime-dur,5s) ease-in-out both;}
-  @keyframes k-baisseG{from{transform:rotate(122deg)}to{transform:rotate(0)}}
-  @keyframes k-baisseD{from{transform:rotate(-122deg)}to{transform:rotate(0)}}
-  /* — Pointe des pieds : tout le corps s'étire vers le haut + bras qui montent — */
+  /* ===== Poses de bras réutilisables (épaule + coude) ===== */
+  @keyframes k-epG-haut{0%{transform:rotate(0)}50%{transform:rotate(140deg)}100%{transform:rotate(140deg)}}
+  @keyframes k-epD-haut{0%{transform:rotate(0)}50%{transform:rotate(-140deg)}100%{transform:rotate(-140deg)}}
+  @keyframes k-coG-haut{0%{transform:rotate(0)}50%{transform:rotate(20deg)}100%{transform:rotate(20deg)}}
+  @keyframes k-coD-haut{0%{transform:rotate(0)}50%{transform:rotate(-20deg)}100%{transform:rotate(-20deg)}}
+  @keyframes k-epG-bas{from{transform:rotate(140deg)}to{transform:rotate(0)}}
+  @keyframes k-epD-bas{from{transform:rotate(-140deg)}to{transform:rotate(0)}}
+  @keyframes k-coG-bas{from{transform:rotate(20deg)}to{transform:rotate(0)}}
+  @keyframes k-coD-bas{from{transform:rotate(-20deg)}to{transform:rotate(0)}}
+
+  /* — Bras vers le ciel (maintien) : bras tendus au-dessus de la tête — */
+  .mv-bras-ciel .m-epaule-g,.mv-pointe .m-epaule-g,.mv-incline-d .m-epaule-g{animation:k-epG-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  .mv-bras-ciel .m-coude-g,.mv-pointe .m-coude-g,.mv-incline-d .m-coude-g{animation:k-coG-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  .mv-bras-ciel .m-epaule-d,.mv-pointe .m-epaule-d,.mv-incline-g .m-epaule-d{animation:k-epD-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  .mv-bras-ciel .m-coude-d,.mv-pointe .m-coude-d,.mv-incline-g .m-coude-d{animation:k-coD-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  /* — Respiration active (recharge) : bras montent (inspire) / redescendent (expire) — */
+  .mv-souffle-in .m-epaule-g{animation:k-epG-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-in .m-coude-g{animation:k-coG-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-in .m-epaule-d{animation:k-epD-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-in .m-coude-d{animation:k-coD-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-epaule-g{animation:k-epG-bas var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-coude-g{animation:k-coG-bas var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-epaule-d{animation:k-epD-bas var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-coude-d{animation:k-coD-bas var(--mime-dur,5s) ease-in-out both;}
+  /* — Pointe des pieds : le corps s'étire vers le haut (+ bras au ciel ci-dessus) — */
   .mv-pointe .m-tout{animation:k-pointe var(--mime-dur,4s) ease-out both;}
-  .mv-pointe .m-bras-g{animation:k-cielG var(--mime-dur,4s) ease-out both;}
-  .mv-pointe .m-bras-d{animation:k-cielD var(--mime-dur,4s) ease-out both;}
   @keyframes k-pointe{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(-6px)}}
 
-  /* — Roulement d'épaules (boucle) : les bras décrivent un petit cercle — */
-  .mv-epaules .m-bras-g,.mv-epaules .m-bras-d{animation:k-roll 1.9s ease-in-out infinite;}
-  .mv-epaules-av .m-bras-g,.mv-epaules-av .m-bras-d{animation:k-roll 1.9s ease-in-out infinite reverse;}
-  @keyframes k-roll{0%{transform:rotate(0) translate(0,0)}25%{transform:rotate(-10deg) translateY(-2px)}50%{transform:rotate(0) translateY(-3px)}75%{transform:rotate(10deg) translateY(-1px)}100%{transform:rotate(0) translate(0,0)}}
-  /* — Bras devant la poitrine (un bras qui traverse) — */
-  .mv-bras-avant-d .m-bras-d{animation:k-traverseD var(--mime-dur,4s) ease-out both;}
-  .mv-bras-avant-g .m-bras-g{animation:k-traverseG var(--mime-dur,4s) ease-out both;}
-  @keyframes k-traverseD{0%{transform:rotate(0)}45%{transform:rotate(120deg)}100%{transform:rotate(120deg)}}
-  @keyframes k-traverseG{0%{transform:rotate(0)}45%{transform:rotate(-120deg)}100%{transform:rotate(-120deg)}}
-  /* — Ouvrir la poitrine : les deux bras s'écartent largement — */
-  .mv-poitrine .m-bras-g{animation:k-ouvreG var(--mime-dur,4s) ease-out both;}
-  .mv-poitrine .m-bras-d{animation:k-ouvreD var(--mime-dur,4s) ease-out both;}
-  @keyframes k-ouvreG{0%{transform:rotate(0)}45%{transform:rotate(38deg)}100%{transform:rotate(38deg)}}
-  @keyframes k-ouvreD{0%{transform:rotate(0)}45%{transform:rotate(-38deg)}100%{transform:rotate(-38deg)}}
+  /* — Roulement d'épaules (boucle) : les épaules décrivent un cercle — */
+  .mv-epaules .m-epaule-g,.mv-epaules .m-epaule-d{animation:k-roll 1.9s ease-in-out infinite;}
+  .mv-epaules-av .m-epaule-g,.mv-epaules-av .m-epaule-d{animation:k-roll 1.9s ease-in-out infinite reverse;}
+  @keyframes k-roll{0%{transform:rotate(0)}25%{transform:rotate(-14deg)}50%{transform:rotate(0)}75%{transform:rotate(14deg)}100%{transform:rotate(0)}}
+  /* — Bras devant la poitrine : le bras traverse, coude plié — */
+  .mv-bras-avant-d .m-epaule-d{animation:k-epD-avant var(--mime-dur,4s) ease-out both;}
+  .mv-bras-avant-d .m-coude-d{animation:k-coD-avant var(--mime-dur,4s) ease-out both;}
+  .mv-bras-avant-g .m-epaule-g{animation:k-epG-avant var(--mime-dur,4s) ease-out both;}
+  .mv-bras-avant-g .m-coude-g{animation:k-coG-avant var(--mime-dur,4s) ease-out both;}
+  @keyframes k-epD-avant{0%{transform:rotate(0)}45%{transform:rotate(100deg)}100%{transform:rotate(100deg)}}
+  @keyframes k-coD-avant{0%{transform:rotate(0)}45%{transform:rotate(55deg)}100%{transform:rotate(55deg)}}
+  @keyframes k-epG-avant{0%{transform:rotate(0)}45%{transform:rotate(-100deg)}100%{transform:rotate(-100deg)}}
+  @keyframes k-coG-avant{0%{transform:rotate(0)}45%{transform:rotate(-55deg)}100%{transform:rotate(-55deg)}}
+  /* — Ouvrir la poitrine : les bras s'écartent, coudes légèrement pliés vers l'arrière — */
+  .mv-poitrine .m-epaule-g{animation:k-epG-ouvre var(--mime-dur,4s) ease-out both;}
+  .mv-poitrine .m-epaule-d{animation:k-epD-ouvre var(--mime-dur,4s) ease-out both;}
+  .mv-poitrine .m-coude-g{animation:k-coG-ouvre var(--mime-dur,4s) ease-out both;}
+  .mv-poitrine .m-coude-d{animation:k-coD-ouvre var(--mime-dur,4s) ease-out both;}
+  @keyframes k-epG-ouvre{0%{transform:rotate(0)}45%{transform:rotate(46deg)}100%{transform:rotate(46deg)}}
+  @keyframes k-epD-ouvre{0%{transform:rotate(0)}45%{transform:rotate(-46deg)}100%{transform:rotate(-46deg)}}
+  @keyframes k-coG-ouvre{0%{transform:rotate(0)}45%{transform:rotate(-30deg)}100%{transform:rotate(-30deg)}}
+  @keyframes k-coD-ouvre{0%{transform:rotate(0)}45%{transform:rotate(30deg)}100%{transform:rotate(30deg)}}
 
-  /* — Inclinaison latérale du buste (étirement du côté) : penche + bras opposé au-dessus — */
+  /* — Inclinaison latérale du buste (étirement du côté) : penche + bras opposé au ciel — */
   .mv-incline-d .m-haut{animation:k-penche-d var(--mime-dur,4s) ease-out both;}
-  .mv-incline-d .m-bras-g{animation:k-cielG var(--mime-dur,4s) ease-out both;}
   .mv-incline-g .m-haut{animation:k-penche-g var(--mime-dur,4s) ease-out both;}
-  .mv-incline-g .m-bras-d{animation:k-cielD var(--mime-dur,4s) ease-out both;}
-  @keyframes k-penche-d{0%{transform:rotate(0)}45%{transform:rotate(15deg)}100%{transform:rotate(15deg)}}
-  @keyframes k-penche-g{0%{transform:rotate(0)}45%{transform:rotate(-15deg)}100%{transform:rotate(-15deg)}}
-  /* — Dos rond : le buste s'enroule vers l'avant (tête basse + bras qui rentrent) — */
+  @keyframes k-penche-d{0%{transform:rotate(0)}45%{transform:rotate(14deg)}100%{transform:rotate(14deg)}}
+  @keyframes k-penche-g{0%{transform:rotate(0)}45%{transform:rotate(-14deg)}100%{transform:rotate(-14deg)}}
+  /* — Dos rond : le buste s'enroule (tête basse, bras qui rentrent, coudes pliés) — */
   .mv-dos-rond .m-haut{animation:k-enroule var(--mime-dur,4s) ease-out both;}
   .mv-dos-rond .m-tete{animation:k-menton var(--mime-dur,4s) ease-out both;}
-  .mv-dos-rond .m-bras-g{animation:k-rentreG var(--mime-dur,4s) ease-out both;}
-  .mv-dos-rond .m-bras-d{animation:k-rentreD var(--mime-dur,4s) ease-out both;}
-  @keyframes k-enroule{0%{transform:translateY(0) scaleY(1)}45%{transform:translateY(3px) scaleY(.93)}100%{transform:translateY(3px) scaleY(.93)}}
-  @keyframes k-rentreG{0%{transform:rotate(0)}45%{transform:rotate(-28deg)}100%{transform:rotate(-28deg)}}
-  @keyframes k-rentreD{0%{transform:rotate(0)}45%{transform:rotate(28deg)}100%{transform:rotate(28deg)}}
+  .mv-dos-rond .m-epaule-g{animation:k-epG-rentre var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-epaule-d{animation:k-epD-rentre var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-coude-g{animation:k-coG-rentre var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-coude-d{animation:k-coD-rentre var(--mime-dur,4s) ease-out both;}
+  @keyframes k-enroule{0%{transform:translateY(0) scaleY(1)}45%{transform:translateY(3px) scaleY(.92)}100%{transform:translateY(3px) scaleY(.92)}}
+  @keyframes k-epG-rentre{0%{transform:rotate(0)}45%{transform:rotate(-34deg)}100%{transform:rotate(-34deg)}}
+  @keyframes k-epD-rentre{0%{transform:rotate(0)}45%{transform:rotate(34deg)}100%{transform:rotate(34deg)}}
+  @keyframes k-coG-rentre{0%{transform:rotate(0)}45%{transform:rotate(-40deg)}100%{transform:rotate(-40deg)}}
+  @keyframes k-coD-rentre{0%{transform:rotate(0)}45%{transform:rotate(40deg)}100%{transform:rotate(40deg)}}
 
-  /* — Tête : inclinaisons (nuque) et rotations (regard), le corps reste immobile — */
+  /* — Tête : inclinaisons (nuque), rotations (regard), menton — le corps reste immobile — */
   .mv-tete-d .m-tete{animation:k-teteD var(--mime-dur,4s) ease-out both;}
   .mv-tete-g .m-tete{animation:k-teteG var(--mime-dur,4s) ease-out both;}
-  @keyframes k-teteD{0%{transform:rotate(0)}45%{transform:rotate(20deg)}100%{transform:rotate(20deg)}}
-  @keyframes k-teteG{0%{transform:rotate(0)}45%{transform:rotate(-20deg)}100%{transform:rotate(-20deg)}}
+  @keyframes k-teteD{0%{transform:rotate(0)}45%{transform:rotate(22deg)}100%{transform:rotate(22deg)}}
+  @keyframes k-teteG{0%{transform:rotate(0)}45%{transform:rotate(-22deg)}100%{transform:rotate(-22deg)}}
   .mv-regard-d .m-tete{animation:k-regardD var(--mime-dur,4s) ease-in-out both;}
   .mv-regard-g .m-tete{animation:k-regardG var(--mime-dur,4s) ease-in-out both;}
   @keyframes k-regardD{0%{transform:translateX(0)}45%{transform:translateX(4px)}100%{transform:translateX(4px)}}
@@ -355,34 +380,48 @@
   .mv-menton .m-tete{animation:k-menton var(--mime-dur,4s) ease-out both;}
   @keyframes k-menton{0%{transform:translateY(0) scale(1)}45%{transform:translateY(5px) scale(.9)}100%{transform:translateY(5px) scale(.9)}}
 
-  /* — Jambes : fente (corps qui descend + jambes écartées), talon-fesse, marche — */
+  /* — Fente : le corps descend + jambe avant fléchie au genou, jambe arrière tendue — */
   .mv-fente-d .m-tout{animation:k-fenteD var(--mime-dur,4s) ease-out both;}
-  .mv-fente-d .m-jambe-d{animation:k-jbDout var(--mime-dur,4s) ease-out both;}
-  .mv-fente-d .m-jambe-g{animation:k-jbGext var(--mime-dur,4s) ease-out both;}
+  .mv-fente-d .m-hanche-d{animation:k-hanD-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-d .m-genou-d{animation:k-genD-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-d .m-hanche-g{animation:k-hanG-ext var(--mime-dur,4s) ease-out both;}
   .mv-fente-g .m-tout{animation:k-fenteG var(--mime-dur,4s) ease-out both;}
-  .mv-fente-g .m-jambe-g{animation:k-jbGout var(--mime-dur,4s) ease-out both;}
-  .mv-fente-g .m-jambe-d{animation:k-jbDext var(--mime-dur,4s) ease-out both;}
-  @keyframes k-fenteD{0%{transform:translate(0,0)}45%{transform:translate(6px,7px)}100%{transform:translate(6px,7px)}}
-  @keyframes k-fenteG{0%{transform:translate(0,0)}45%{transform:translate(-6px,7px)}100%{transform:translate(-6px,7px)}}
-  @keyframes k-jbDout{0%{transform:rotate(0)}45%{transform:rotate(-24deg)}100%{transform:rotate(-24deg)}}
-  @keyframes k-jbGout{0%{transform:rotate(0)}45%{transform:rotate(24deg)}100%{transform:rotate(24deg)}}
-  @keyframes k-jbGext{0%{transform:rotate(0)}45%{transform:rotate(-12deg)}100%{transform:rotate(-12deg)}}
-  @keyframes k-jbDext{0%{transform:rotate(0)}45%{transform:rotate(12deg)}100%{transform:rotate(12deg)}}
-  .mv-talon-d .m-jambe-d{animation:k-talonD var(--mime-dur,4s) ease-out both;}
-  .mv-talon-g .m-jambe-g{animation:k-talonG var(--mime-dur,4s) ease-out both;}
-  @keyframes k-talonD{0%{transform:rotate(0)}45%{transform:rotate(-62deg)}100%{transform:rotate(-62deg)}}
-  @keyframes k-talonG{0%{transform:rotate(0)}45%{transform:rotate(62deg)}100%{transform:rotate(62deg)}}
-  .mv-marche .m-jambe-g{animation:k-marcheG .95s ease-in-out infinite;}
-  .mv-marche .m-jambe-d{animation:k-marcheD .95s ease-in-out infinite;}
-  @keyframes k-marcheG{0%,50%,100%{transform:rotate(0)}25%{transform:rotate(22deg)}}
-  @keyframes k-marcheD{0%,50%,100%{transform:rotate(0)}75%{transform:rotate(-22deg)}}
+  .mv-fente-g .m-hanche-g{animation:k-hanG-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-g .m-genou-g{animation:k-genG-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-g .m-hanche-d{animation:k-hanD-ext var(--mime-dur,4s) ease-out both;}
+  @keyframes k-fenteD{0%{transform:translate(0,0)}45%{transform:translate(5px,7px)}100%{transform:translate(5px,7px)}}
+  @keyframes k-fenteG{0%{transform:translate(0,0)}45%{transform:translate(-5px,7px)}100%{transform:translate(-5px,7px)}}
+  @keyframes k-hanD-fente{0%{transform:rotate(0)}45%{transform:rotate(-36deg)}100%{transform:rotate(-36deg)}}
+  @keyframes k-genD-fente{0%{transform:rotate(0)}45%{transform:rotate(38deg)}100%{transform:rotate(38deg)}}
+  @keyframes k-hanG-fente{0%{transform:rotate(0)}45%{transform:rotate(36deg)}100%{transform:rotate(36deg)}}
+  @keyframes k-genG-fente{0%{transform:rotate(0)}45%{transform:rotate(-38deg)}100%{transform:rotate(-38deg)}}
+  @keyframes k-hanG-ext{0%{transform:rotate(0)}45%{transform:rotate(24deg)}100%{transform:rotate(24deg)}}
+  @keyframes k-hanD-ext{0%{transform:rotate(0)}45%{transform:rotate(-24deg)}100%{transform:rotate(-24deg)}}
+  /* — Talon-fesse : le genou se plie à fond (le tibia remonte derrière) — */
+  .mv-talon-d .m-genou-d{animation:k-genD-fold var(--mime-dur,4s) ease-out both;}
+  .mv-talon-d .m-hanche-d{animation:k-hanD-lift var(--mime-dur,4s) ease-out both;}
+  .mv-talon-g .m-genou-g{animation:k-genG-fold var(--mime-dur,4s) ease-out both;}
+  .mv-talon-g .m-hanche-g{animation:k-hanG-lift var(--mime-dur,4s) ease-out both;}
+  @keyframes k-genD-fold{0%{transform:rotate(0)}45%{transform:rotate(-148deg)}100%{transform:rotate(-148deg)}}
+  @keyframes k-genG-fold{0%{transform:rotate(0)}45%{transform:rotate(148deg)}100%{transform:rotate(148deg)}}
+  @keyframes k-hanD-lift{0%{transform:rotate(0)}45%{transform:rotate(-10deg)}100%{transform:rotate(-10deg)}}
+  @keyframes k-hanG-lift{0%{transform:rotate(0)}45%{transform:rotate(10deg)}100%{transform:rotate(10deg)}}
+  /* — Marche sur place : genoux qui montent en alternance (hanche + genou pliés) — */
+  .mv-marche .m-hanche-g{animation:k-hanG-mar 1s ease-in-out infinite;}
+  .mv-marche .m-genou-g{animation:k-genG-mar 1s ease-in-out infinite;}
+  .mv-marche .m-hanche-d{animation:k-hanD-mar 1s ease-in-out infinite;}
+  .mv-marche .m-genou-d{animation:k-genD-mar 1s ease-in-out infinite;}
+  @keyframes k-hanG-mar{0%,55%,100%{transform:rotate(0)}25%{transform:rotate(-32deg)}}
+  @keyframes k-genG-mar{0%,55%,100%{transform:rotate(0)}25%{transform:rotate(45deg)}}
+  @keyframes k-hanD-mar{0%,50%,100%{transform:rotate(0)}80%{transform:rotate(32deg)}}
+  @keyframes k-genD-mar{0%,50%,100%{transform:rotate(0)}80%{transform:rotate(-45deg)}}
   /* — Rotation du bassin : petit cercle des hanches (boucle) — */
   .mv-bassin .m-tout{animation:k-bassin 2.6s ease-in-out infinite;}
   .mv-bassin-inv .m-tout{animation:k-bassin 2.6s ease-in-out infinite reverse;}
   @keyframes k-bassin{0%{transform:translate(0,0)}25%{transform:translate(4px,1px)}50%{transform:translate(0,3px)}75%{transform:translate(-4px,1px)}100%{transform:translate(0,0)}}
-  /* — Secouer : petite vibration rapide des membres (boucle) — */
-  .mv-secouer .m-bras-g,.mv-secouer .m-bras-d,.mv-secouer .m-jambe-g,.mv-secouer .m-jambe-d{animation:k-shake .34s ease-in-out infinite;}
-  @keyframes k-shake{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+  /* — Secouer : vibration rapide de tous les membres (boucle) — */
+  .mv-secouer .m-epaule-g,.mv-secouer .m-epaule-d,.mv-secouer .m-coude-g,.mv-secouer .m-coude-d,.mv-secouer .m-hanche-g,.mv-secouer .m-hanche-d,.mv-secouer .m-genou-g,.mv-secouer .m-genou-d{animation:k-shake .34s ease-in-out infinite;}
+  @keyframes k-shake{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
 
   .seance-bottom{display:flex;flex-direction:column;gap:8px;}
 
@@ -534,13 +573,13 @@
         <svg id="bonhomme" class="bonhomme-anim" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <g class="m-tout">
             <g class="m-haut">
-              <circle class="m-tete" cx="50" cy="20" r="9"></circle>
-              <line class="m-torse" x1="50" y1="29" x2="50" y2="60"></line>
-              <line class="m-bras-g" x1="50" y1="36" x2="34" y2="58"></line>
-              <line class="m-bras-d" x1="50" y1="36" x2="66" y2="58"></line>
+              <circle class="m-tete" cx="50" cy="16" r="8"></circle>
+              <line class="m-torse" x1="50" y1="24" x2="50" y2="54"></line>
+              <g class="m-epaule-g"><line x1="50" y1="30" x2="44" y2="43"></line><g class="m-coude-g"><line x1="44" y1="43" x2="43" y2="56"></line></g></g>
+              <g class="m-epaule-d"><line x1="50" y1="30" x2="56" y2="43"></line><g class="m-coude-d"><line x1="56" y1="43" x2="57" y2="56"></line></g></g>
             </g>
-            <line class="m-jambe-g" x1="50" y1="60" x2="38" y2="90"></line>
-            <line class="m-jambe-d" x1="50" y1="60" x2="62" y2="90"></line>
+            <g class="m-hanche-g"><line x1="50" y1="54" x2="45" y2="70"></line><g class="m-genou-g"><line x1="45" y1="70" x2="44" y2="87"></line></g></g>
+            <g class="m-hanche-d"><line x1="50" y1="54" x2="55" y2="70"></line><g class="m-genou-d"><line x1="55" y1="70" x2="56" y2="87"></line></g></g>
           </g>
         </svg>
         <span class="compte" id="compte" aria-hidden="true"></span>
