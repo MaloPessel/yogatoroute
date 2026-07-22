@@ -49,6 +49,17 @@ Nouveautés ajoutées lors d'une seconde passe de retours, **sans toucher au des
 
 ---
 
+## 0.3 Refactorisation modulaire — déploiement Netlify (implémentée)
+
+Séparation **propre HTML / CSS / JS**, sans **aucune** modification de logique, de texte ni de couleur (refactoring pur — cf. §2 pour l'arborescence) :
+- `index.html` (racine) ne contient plus que le markup + les liens vers `css/styles.css` et 7 modules `js/*.js`.
+- CSS extrait dans `css/styles.css` ; JS découpé par responsabilité : `utils`, `icons`, `data`, `audio`, `animations`, `timer`, `app`.
+- Scripts **classiques** (non-modules) chargés dans l'ordre de dépendance → fonctions globales conservées, handlers `onclick=` inline inchangés, site **sans build** (déployable tel quel sur Netlify).
+- Chemins audio `assets/…` inchangés (résolus depuis `index.html`) → **déverrouillage mobile préservé**. Squelette SVG articulé et icônes intacts.
+- Vérifié : contenu code **strictement identique** (aucune ligne perdue/altérée), app fonctionnelle de bout en bout, zéro erreur console.
+
+---
+
 ## 1. Concept et Objectif
 
 **Yogatoroute** est une application web mono-page de **pauses guidées destinées aux conducteurs sur les aires de repos d'autoroute**. Le message porté par l'interface est explicite : la pratique se fait *« à l'arrêt, moteur coupé, sur une aire de repos »*, dans le but de réduire le stress et d'améliorer l'attention au volant (`<title>`, meta `description`, note de sécurité `.note-secu`).
@@ -72,25 +83,44 @@ L'expérience est **100 % côté client, sans compte, sans persistance, sans ré
 
 ## 2. Architecture et Stack technique
 
-**Stack : aucune dépendance applicative, aucun build.** Tout tient dans un seul fichier statique.
+**Stack : aucun framework, aucun bundler, aucun build, aucun `package.json`.** Vanilla JS + CSS. Site **statique**, déployable **tel quel sur Netlify** (Netlify sert directement les fichiers, aucune étape de build).
 
-- **`index.html`** (~950 lignes) : structure HTML, CSS embarqué dans un `<style>`, logique JS embarquée dans un `<script>`. Vanilla JS, aucun framework, aucun bundler, aucun `package.json`.
-- **Langue** : `<html lang="fr">`, toute l'UI et le contenu sont en français.
-- **Polices** : chargées depuis Google Fonts (`fonts.googleapis.com`) —
-  - **Bricolage Grotesque** (300/500/700/800, axe optique `opsz 12..96`) → titres, logo, boutons, consignes.
-  - **Karla** (400/500/600/700) → corps de texte.
-- **Icônes** : **SVG inlinés** dans le script (objet `ICONS`, jeu dérivé de Lucide ; `icon(nom,taille)` + `hydrateIcones()`). **Aucune librairie, aucun CDN** → rendu hors-ligne garanti. *(Auparavant : emojis Unicode.)*
-- **Assets locaux** : dossier `assets/` (5 `.mp3`) + `logo.png` (favicon **et logo de l'en-tête**, 36×36, cercle).
-- **Rendu** : mobile-first, conteneur `.app` `max-width:440px`, plein écran sur mobile et **« carte » arrondie centrée** sur grand écran (`min-width:520px`) ; en-tête fixe + écran actif défilant.
+### 2.1 Arborescence (refactorisation modulaire)
+Le code, auparavant réuni dans un unique `index.html`, est désormais **séparé HTML / CSS / JS** :
 
-**Organisation du code JS** (dans l'ordre du fichier) :
-1. `SECTIONS` — objet de **données** décrivant les 3 sections et leurs exercices.
-2. Bloc **Icônes** (`ICONS`, `icon()`, `hydrateIcones()`) — SVG inlinés, aucun réseau.
-3. Bloc **Audio** (`A`, ding / **musique dynamique par section** `demarrerMusique` / voix, déverrouillage mobile).
-4. Bloc **animation de la bulle** (échelles, easing).
-5. Bloc **état de session** (variables globales).
-6. Bloc **navigation / rendu** (`montrer`, `choisirSection`, `rendreListe`, thème).
-7. Bloc **moteur de séance** (`construireTimeline`, `lancerExo`, `rendreFrame`/`boucle`, `majMime`, **contrôles** `basculerPause`/`phaseSuivante`/`phasePrecedente`, `conclure`, `afficherFin`, `goNext`, `refaire`, arrêts).
+```
+index.html            structure HTML uniquement (+ liens vers css/ et js/)
+css/
+  styles.css          toute la feuille de style (tokens, thèmes, écrans, mime…)
+js/
+  utils.js            helpers DOM partagés ($, $app, fmt)
+  icons.js            ICONS + icon() + hydrateIcones() (SVG inline)
+  data.js             SECTIONS, NEXT, TEINTE (contenu)
+  audio.js            cloche, musique dynamique par section, voix, déverrouillage mobile
+  animations.js       échelle de la bulle + personnage articulé « mime »
+  timer.js            état, timeline, horloge rAF, contrôles de lecture, conclusion
+  app.js              navigation, thème, rendu, lancement, écran fin, amorçage
+assets/               ding / music / inspire / bloque / expire (.mp3)
+logo.png              favicon + logo d'en-tête
+```
+
+- **Chargement** : les 7 scripts sont inclus en fin de `<body>` via `<script src>` **classiques** (non-modules), dans l'**ordre de dépendance** `utils → icons → data → audio → animations → timer → app`. Choix d'architecture assumé : les gestionnaires **`onclick=` inline** du HTML appellent des fonctions **globales** ; des scripts classiques les exposent nativement (aucune réécriture des handlers, aucun build). Toutes les fonctions/constantes partagent le même scope global ; `app.js` (dernier) amorce l'app une fois tout chargé.
+- **Langue** : `<html lang="fr">`, UI et contenu 100 % en français.
+- **Polices** : Google Fonts — **Bricolage Grotesque** (300/500/700/800) titres/logo/consignes, **Karla** (400/500/600/700) corps. Repli `system-ui` si indisponibles.
+- **Icônes** : SVG **inline** (`js/icons.js`) — aucune librairie, aucun CDN.
+- **Assets audio** : `new Audio("assets/…")`. ⚠️ Ces chemins sont résolus **relativement au document** (`index.html`, à la racine), **pas** au fichier JS — ils restent donc valides depuis `js/`, et le **déverrouillage audio mobile** est préservé.
+- **Rendu** : mobile-first, `.app` `max-width:440px`, plein écran sur mobile et **« carte » arrondie centrée** sur grand écran ; en-tête fixe + écran actif défilant.
+
+### 2.2 Rôle de chaque module JS
+| Fichier | Responsabilité |
+|---|---|
+| `utils.js` | Helpers DOM (`$`, `$app`) et formatage `fmt` |
+| `icons.js` | Bibliothèque d'icônes SVG inline + injection (`icon`, `hydrateIcones`) |
+| `data.js` | Données : sections, exercices, phases, enchaînement `NEXT`, teintes `TEINTE` |
+| `audio.js` | Cloche, **musique par section** (+ repli mémorisé), repères vocaux + ducking, déverrouillage mobile |
+| `animations.js` | Échelle de la bulle (easing) + synchro du personnage « mime » (`echelleDe`, `placerBulle`, `majMime`) |
+| `timer.js` | État de session, `construireTimeline`, horloge rAF (`rendreFrame`/`boucle`), contrôles (`basculerPause`/`phaseSuivante`/`phasePrecedente`), `conclure` |
+| `app.js` | Navigation/thème, `rendreListe`, `lancerExo`, `afficherFin`, `goNext`/`refaire`, `arreterTout`, raccourcis clavier, amorçage |
 
 **Modèle de rendu des écrans** : les 3 `<section class="ecran">` (accueil / séance / fin) coexistent dans le DOM ; une seule porte la classe `.actif` (les autres sont `display:none`). `montrer(id)` bascule cette classe. Aucun routeur, pas d'URL/hash.
 

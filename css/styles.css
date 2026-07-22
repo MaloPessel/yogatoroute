@@ -1,0 +1,515 @@
+/*!
+ * styles.css — Feuille de style unique de Yogatoroute.
+ * Tokens de couleur (neutres + doré + palettes par section), thème basculé via
+ * l'attribut .app[data-section], mise en page des 3 écrans (accueil / séance / fin),
+ * barre de contrôle multimédia et personnage animé "mime" (squelette articulé).
+ */
+  :root{
+    /* ---- Neutres chauds (chrome commun) ---- */
+    --blanc-brume:#FDFAF8;
+    --greige:#EDE8E1;          /* fond de page (autour de la colonne sur grand écran) */
+    --encre:#33302B;           /* texte principal — AAA sur fond clair */
+    --encre-douce:#6A625A;     /* texte secondaire — AA garanti */
+    --trait:rgba(51,48,43,.10);/* filets / bordures neutres */
+
+    /* ---- Doré : fil conducteur CONSTANT, présent dans les 3 sections ---- */
+    --dore:#C9A227;            /* doré vif — le « to » du logo (marque) */
+    --dore-fort:#7C6410;       /* doré foncé lisible — texte des tags (AA sur clair) */
+    --dore-doux:rgba(227,199,102,.5); /* doré translucide 50 % — banderole du titre */
+    --dore-pale:#FBF3DA;       /* doré très pâle — fond des tags */
+
+    /* ---- RESPIRATION · Doré & Violet pâle (le mix d'origine) ---- */
+    --resp-accent:#8B5A79;
+    --resp-fort:#6E3E5C;
+    --resp-doux:#C9A2BE;
+    --resp-pale:#F3E4EC;
+
+    /* ---- ÉTIREMENT · Doré & Vert sauge ---- */
+    --etir-accent:#7FA06E;
+    --etir-fort:#43603A;
+    --etir-doux:#AEC59F;
+    --etir-pale:#EDF3E7;
+
+    /* ---- RÉCUPÉRATION RAPIDE · Doré & Bleu nuit ---- */
+    --recup-accent:#47598C;
+    --recup-fort:#2E3C63;
+    --recup-doux:#8C99BE;
+    --recup-pale:#E7EAF4;
+
+    /* ---- Variables actives (réécrites par section) ---- */
+    --accent:var(--resp-accent);
+    --accent-fort:var(--resp-fort);
+    --accent-doux:var(--resp-doux);
+    --accent-pale:var(--resp-pale);
+  }
+
+  /* Bascule de thème par section : une seule source de vérité pour la couleur */
+  .app[data-section="respiration"]{
+    --accent:var(--resp-accent); --accent-fort:var(--resp-fort);
+    --accent-doux:var(--resp-doux); --accent-pale:var(--resp-pale);
+  }
+  .app[data-section="etirement"]{
+    --accent:var(--etir-accent); --accent-fort:var(--etir-fort);
+    --accent-doux:var(--etir-doux); --accent-pale:var(--etir-pale);
+  }
+  .app[data-section="recuperation"]{
+    --accent:var(--recup-accent); --accent-fort:var(--recup-fort);
+    --accent-doux:var(--recup-doux); --accent-pale:var(--recup-pale);
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    font-family:'Karla',system-ui,sans-serif;
+    color:var(--encre);
+    background:var(--greige);
+    line-height:1.5;
+    display:flex;justify-content:center;
+    -webkit-font-smoothing:antialiased;
+  }
+  /* Icônes SVG inlinées : le conteneur centre, `.lu` fixe le trait fin */
+  [data-icon]{display:inline-flex;align-items:center;justify-content:center;flex:none;}
+  .lu{stroke-width:1.75;display:block;}
+
+  /* ---------- Cadre application ---------- */
+  .app{
+    position:relative;
+    width:100%;max-width:440px;
+    min-height:100dvh;
+    display:flex;flex-direction:column;
+    /* Fond doux teinté par la section — transition douce au changement */
+    background:linear-gradient(172deg,var(--accent-pale) 0%,var(--blanc-brume) 46%,var(--accent-pale) 100%);
+    transition:background .5s ease;
+    overflow:hidden;
+  }
+  /* Sur grand écran : la colonne devient une « carte » posée sur le greige */
+  @media (min-width:520px){
+    body{align-items:center;padding:28px 20px;}
+    .app{
+      min-height:0;height:min(840px,calc(100dvh - 56px));
+      border-radius:38px;
+      box-shadow:0 34px 64px -22px rgba(51,48,43,.5),0 2px 8px rgba(51,48,43,.22);
+    }
+  }
+  @media (prefers-reduced-motion:reduce){ .app{transition:none;} }
+
+  /* ---------- En-tête (constant) ---------- */
+  header{
+    flex:none;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:18px 22px 10px;
+  }
+  .logo{
+    display:flex;align-items:center;gap:10px;
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;font-size:1.28rem;letter-spacing:-.01em;color:var(--encre);
+    background:none;border:none;cursor:pointer;padding:0;
+  }
+  .logo img{width:36px;height:36px;display:block;border-radius:50%;flex:none;} /* logo restauré */
+  .logo .to{color:var(--dore);}
+  .badge-pause{
+    display:flex;align-items:center;gap:5px;
+    border:1px solid var(--accent-doux);color:var(--accent-fort);
+    border-radius:99px;padding:5px 12px;
+    font:600 .72rem 'Karla';white-space:nowrap;
+    background:rgba(253,250,248,.5);
+    transition:color .4s ease,border-color .4s ease;
+  }
+
+  /* ---------- Écrans ---------- */
+  .ecran{display:none;flex:1;flex-direction:column;overflow-y:auto;overflow-x:hidden;}
+  .ecran.actif{display:flex;animation:apparait .35s ease both;}
+  @keyframes apparait{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  @media (prefers-reduced-motion:reduce){ .ecran.actif{animation:none;} }
+
+  /* ===================== ACCUEIL ===================== */
+  .accueil{padding:6px 22px 22px;}
+  .accueil h1{
+    font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:300;font-size:clamp(1.75rem,7vw,2.15rem);line-height:1.08;
+    letter-spacing:-.02em;color:var(--encre);margin:4px 0 10px;text-wrap:balance;
+  }
+  .accueil h1 em{
+    font-style:normal;font-weight:700;
+    box-shadow:inset 0 -.42em var(--dore-doux); /* banderole dorée — fil conducteur constant */
+  }
+  .accueil .intro{font-size:.9rem;color:var(--encre-douce);margin-bottom:20px;max-width:34em;}
+
+  /* Onglets de section */
+  .onglets{display:flex;gap:8px;margin-bottom:18px;}
+  .onglet{
+    flex:1;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:5px;
+    padding:12px 4px;border-radius:14px;
+    background:var(--blanc-brume);color:var(--accent-fort);
+    border:1px solid rgba(51,48,43,.14);
+    font:700 .72rem 'Karla';line-height:1.1;text-align:center;
+    transition:background .3s ease,color .3s ease,border-color .3s ease;
+  }
+  .onglet:hover{border-color:var(--accent-doux);}
+  .onglet[aria-selected="true"]{
+    background:var(--accent);color:#fff;border-color:transparent;
+    box-shadow:0 6px 16px -8px rgba(51,48,43,.4);
+  }
+
+  .question{
+    font:700 .78rem 'Karla';letter-spacing:.1em;text-transform:uppercase;
+    color:var(--accent-fort);margin-bottom:12px;transition:color .4s ease;
+  }
+
+  /* Cartes d'exercice */
+  .choix{display:flex;flex-direction:column;gap:11px;}
+  .carte-exo{
+    display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;
+    padding:14px 15px;border-radius:16px;
+    background:var(--blanc-brume);border:1px solid var(--trait);
+    font-family:inherit;color:inherit;
+    transition:transform .12s ease,box-shadow .2s ease;
+    animation:apparait .3s ease both;
+  }
+  .carte-exo:hover,.carte-exo:focus-visible{box-shadow:0 10px 22px -12px rgba(51,48,43,.35);}
+  .carte-exo:active{transform:scale(.985);}
+  .carte-exo .pastille{
+    width:44px;height:44px;border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--accent-pale);color:var(--accent-fort);
+    transition:background .4s ease,color .4s ease;
+  }
+  .carte-exo .texte{flex:1;min-width:0;}
+  .carte-exo .titre-exo{
+    display:block;font-family:'Bricolage Grotesque',sans-serif;
+    font-weight:700;font-size:.98rem;line-height:1.18;color:var(--accent-fort);
+    transition:color .4s ease;
+  }
+  .carte-exo .meta{display:block;font-size:.78rem;color:var(--encre-douce);margin-top:1px;}
+  .carte-exo .tag{
+    flex:none;font:700 .72rem 'Karla';color:var(--dore-fort);
+    background:var(--dore-pale);border-radius:999px;padding:5px 10px;white-space:nowrap;
+  }
+
+  .note-secu{
+    display:flex;align-items:center;gap:8px;
+    margin-top:22px;font-size:.78rem;color:var(--encre-douce);
+  }
+  .note-secu [data-icon]{color:var(--dore-fort);} /* doré discret — fil conducteur */
+  .copyright{
+    margin-top:14px;font-size:.72rem;text-align:center;
+    color:var(--accent-fort);opacity:.5;transition:color .4s ease;
+  }
+
+  /* ===================== SÉANCE ===================== */
+  .seance{padding:8px 22px 20px;}
+  .seance-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+  .seance-top .exo{display:flex;align-items:center;gap:10px;min-width:0;}
+  .seance-top .exo-ico{
+    width:38px;height:38px;flex:none;border-radius:11px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--accent-pale);color:var(--accent-fort);
+    transition:background .4s ease,color .4s ease;
+  }
+  .seance-top .exo-txt{min-width:0;}
+  .seance-top .exo-nom{
+    display:block;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+    font-size:.98rem;line-height:1.15;color:var(--accent-fort);transition:color .4s ease;
+  }
+  .seance-top .exo-sous{display:block;font:400 .76rem 'Karla';color:var(--encre-douce);margin-top:1px;}
+  .seance-top .fermer{
+    flex:none;width:34px;height:34px;border-radius:50%;
+    border:1px solid rgba(51,48,43,.16);background:transparent;color:var(--encre-douce);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background .2s ease;
+  }
+  .seance-top .fermer:hover{background:rgba(51,48,43,.06);}
+
+  .scene-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 0;}
+  .phase-label{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:500;
+    font-size:1.15rem;line-height:1.25;color:var(--accent-fort);
+    text-align:center;max-width:300px;min-height:1.25em;margin-bottom:4px;
+    transition:color .4s ease;
+  }
+  .scene{
+    position:relative;width:min(62vw,224px);aspect-ratio:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .halo{
+    position:absolute;inset:0;border-radius:50%;pointer-events:none;
+    background:radial-gradient(circle,var(--accent-doux) 0%,transparent 65%);
+    opacity:.5;animation:respireHalo 8s ease-in-out infinite;
+    will-change:transform,opacity;
+  }
+  @keyframes respireHalo{0%,100%{transform:scale(.85);opacity:.35;}50%{transform:scale(1.05);opacity:.6;}}
+  .anneau{
+    position:absolute;width:88%;height:88%;border-radius:50%;
+    border:1px solid var(--accent-doux);transition:border-color .4s ease;
+  }
+  .cercle{
+    position:absolute;width:82%;height:82%;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,var(--accent-pale),var(--accent-doux));
+    box-shadow:0 20px 60px -18px rgba(51,48,43,.4),inset 0 0 0 8px rgba(253,251,246,.5);
+    transform:scale(.68);will-change:transform;
+    /* Aucune transition CSS : l'échelle est peinte image par image en JS (fluide, sans dérive) */
+  }
+  .compte{
+    position:relative;z-index:1;
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:300;
+    font-size:clamp(3rem,15vw,4rem);color:var(--accent-fort);
+    font-variant-numeric:tabular-nums;line-height:1;transition:color .4s ease;
+  }
+  /* Déplacé AU-DESSUS de la bulle (lisibilité) : sert d'intro puis de sous-consigne */
+  .sous-consigne{
+    font:400 .84rem 'Karla';color:var(--encre-douce);text-align:center;
+    max-width:270px;min-height:1.2em;margin:0 0 16px;
+  }
+
+  /* ---------- Personnage animé « mime » (Étirements + Récup' exercice 3) ---------- */
+  .bonhomme-anim{
+    position:absolute;width:64%;height:64%;
+    top:44%;left:50%;transform:translate(-50%,-50%);
+    color:var(--accent-fort);display:none;pointer-events:none;
+    transition:color .4s ease;
+  }
+  .scene.avec-mime .bonhomme-anim{display:block;}
+  /* En mode mime, le décompte passe en petit, au bas de la scène */
+  .scene.avec-mime .compte{
+    position:absolute;top:auto;bottom:3%;left:0;right:0;
+    text-align:center;font-size:1.55rem;
+  }
+  /* transform-box:view-box → transform-origin dans le repère du viewBox (100×100).
+     SQUELETTE ARTICULÉ : chaque os pivote à son articulation (épaule→coude, hanche→genou).
+     Un groupe enfant tourne AVANT son parent → l'avant-bras / le tibia restent attachés. */
+  .bonhomme-anim g,.bonhomme-anim line,.bonhomme-anim circle{transform-box:view-box;}
+  .bonhomme-anim .m-tout{transform-origin:50px 50px;animation:m-respire 4.6s ease-in-out infinite;}
+  .bonhomme-anim .m-haut{transform-origin:50px 54px;}          /* buste : penche à la hanche */
+  .bonhomme-anim .m-tete{transform-origin:50px 24px;}          /* cou */
+  .bonhomme-anim .m-epaule-g,.bonhomme-anim .m-epaule-d{transform-origin:50px 30px;}
+  .bonhomme-anim .m-coude-g{transform-origin:44px 43px;}
+  .bonhomme-anim .m-coude-d{transform-origin:56px 43px;}
+  .bonhomme-anim .m-hanche-g,.bonhomme-anim .m-hanche-d{transform-origin:50px 54px;}
+  .bonhomme-anim .m-genou-g{transform-origin:45px 70px;}
+  .bonhomme-anim .m-genou-d{transform-origin:55px 70px;}
+  /* Repos : simple respiration verticale (aucun balancier global) */
+  @keyframes m-respire{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.4px)}}
+
+  /* ===== Poses de bras réutilisables (épaule + coude) ===== */
+  @keyframes k-epG-haut{0%{transform:rotate(0)}50%{transform:rotate(140deg)}100%{transform:rotate(140deg)}}
+  @keyframes k-epD-haut{0%{transform:rotate(0)}50%{transform:rotate(-140deg)}100%{transform:rotate(-140deg)}}
+  @keyframes k-coG-haut{0%{transform:rotate(0)}50%{transform:rotate(20deg)}100%{transform:rotate(20deg)}}
+  @keyframes k-coD-haut{0%{transform:rotate(0)}50%{transform:rotate(-20deg)}100%{transform:rotate(-20deg)}}
+  @keyframes k-epG-bas{from{transform:rotate(140deg)}to{transform:rotate(0)}}
+  @keyframes k-epD-bas{from{transform:rotate(-140deg)}to{transform:rotate(0)}}
+  @keyframes k-coG-bas{from{transform:rotate(20deg)}to{transform:rotate(0)}}
+  @keyframes k-coD-bas{from{transform:rotate(-20deg)}to{transform:rotate(0)}}
+
+  /* — Bras vers le ciel (maintien) : bras tendus au-dessus de la tête — */
+  .mv-bras-ciel .m-epaule-g,.mv-pointe .m-epaule-g,.mv-incline-d .m-epaule-g{animation:k-epG-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  .mv-bras-ciel .m-coude-g,.mv-pointe .m-coude-g,.mv-incline-d .m-coude-g{animation:k-coG-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  .mv-bras-ciel .m-epaule-d,.mv-pointe .m-epaule-d,.mv-incline-g .m-epaule-d{animation:k-epD-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  .mv-bras-ciel .m-coude-d,.mv-pointe .m-coude-d,.mv-incline-g .m-coude-d{animation:k-coD-haut var(--mime-dur,4s) cubic-bezier(.34,.1,.2,1) both;}
+  /* — Respiration active (recharge) : bras montent (inspire) / redescendent (expire) — */
+  .mv-souffle-in .m-epaule-g{animation:k-epG-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-in .m-coude-g{animation:k-coG-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-in .m-epaule-d{animation:k-epD-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-in .m-coude-d{animation:k-coD-haut var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-epaule-g{animation:k-epG-bas var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-coude-g{animation:k-coG-bas var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-epaule-d{animation:k-epD-bas var(--mime-dur,5s) ease-in-out both;}
+  .mv-souffle-out .m-coude-d{animation:k-coD-bas var(--mime-dur,5s) ease-in-out both;}
+  /* — Pointe des pieds : le corps s'étire vers le haut (+ bras au ciel ci-dessus) — */
+  .mv-pointe .m-tout{animation:k-pointe var(--mime-dur,4s) ease-out both;}
+  @keyframes k-pointe{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(-6px)}}
+
+  /* — Roulement d'épaules (boucle) : les épaules décrivent un cercle — */
+  .mv-epaules .m-epaule-g,.mv-epaules .m-epaule-d{animation:k-roll 1.9s ease-in-out infinite;}
+  .mv-epaules-av .m-epaule-g,.mv-epaules-av .m-epaule-d{animation:k-roll 1.9s ease-in-out infinite reverse;}
+  @keyframes k-roll{0%{transform:rotate(0)}25%{transform:rotate(-14deg)}50%{transform:rotate(0)}75%{transform:rotate(14deg)}100%{transform:rotate(0)}}
+  /* — Bras devant la poitrine : le bras traverse, coude plié — */
+  .mv-bras-avant-d .m-epaule-d{animation:k-epD-avant var(--mime-dur,4s) ease-out both;}
+  .mv-bras-avant-d .m-coude-d{animation:k-coD-avant var(--mime-dur,4s) ease-out both;}
+  .mv-bras-avant-g .m-epaule-g{animation:k-epG-avant var(--mime-dur,4s) ease-out both;}
+  .mv-bras-avant-g .m-coude-g{animation:k-coG-avant var(--mime-dur,4s) ease-out both;}
+  @keyframes k-epD-avant{0%{transform:rotate(0)}45%{transform:rotate(100deg)}100%{transform:rotate(100deg)}}
+  @keyframes k-coD-avant{0%{transform:rotate(0)}45%{transform:rotate(55deg)}100%{transform:rotate(55deg)}}
+  @keyframes k-epG-avant{0%{transform:rotate(0)}45%{transform:rotate(-100deg)}100%{transform:rotate(-100deg)}}
+  @keyframes k-coG-avant{0%{transform:rotate(0)}45%{transform:rotate(-55deg)}100%{transform:rotate(-55deg)}}
+  /* — Ouvrir la poitrine : les bras s'écartent, coudes légèrement pliés vers l'arrière — */
+  .mv-poitrine .m-epaule-g{animation:k-epG-ouvre var(--mime-dur,4s) ease-out both;}
+  .mv-poitrine .m-epaule-d{animation:k-epD-ouvre var(--mime-dur,4s) ease-out both;}
+  .mv-poitrine .m-coude-g{animation:k-coG-ouvre var(--mime-dur,4s) ease-out both;}
+  .mv-poitrine .m-coude-d{animation:k-coD-ouvre var(--mime-dur,4s) ease-out both;}
+  @keyframes k-epG-ouvre{0%{transform:rotate(0)}45%{transform:rotate(46deg)}100%{transform:rotate(46deg)}}
+  @keyframes k-epD-ouvre{0%{transform:rotate(0)}45%{transform:rotate(-46deg)}100%{transform:rotate(-46deg)}}
+  @keyframes k-coG-ouvre{0%{transform:rotate(0)}45%{transform:rotate(-30deg)}100%{transform:rotate(-30deg)}}
+  @keyframes k-coD-ouvre{0%{transform:rotate(0)}45%{transform:rotate(30deg)}100%{transform:rotate(30deg)}}
+
+  /* — Inclinaison latérale du buste (étirement du côté) : penche + bras opposé au ciel — */
+  .mv-incline-d .m-haut{animation:k-penche-d var(--mime-dur,4s) ease-out both;}
+  .mv-incline-g .m-haut{animation:k-penche-g var(--mime-dur,4s) ease-out both;}
+  @keyframes k-penche-d{0%{transform:rotate(0)}45%{transform:rotate(14deg)}100%{transform:rotate(14deg)}}
+  @keyframes k-penche-g{0%{transform:rotate(0)}45%{transform:rotate(-14deg)}100%{transform:rotate(-14deg)}}
+  /* — Dos rond : le buste s'enroule (tête basse, bras qui rentrent, coudes pliés) — */
+  .mv-dos-rond .m-haut{animation:k-enroule var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-tete{animation:k-menton var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-epaule-g{animation:k-epG-rentre var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-epaule-d{animation:k-epD-rentre var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-coude-g{animation:k-coG-rentre var(--mime-dur,4s) ease-out both;}
+  .mv-dos-rond .m-coude-d{animation:k-coD-rentre var(--mime-dur,4s) ease-out both;}
+  @keyframes k-enroule{0%{transform:translateY(0) scaleY(1)}45%{transform:translateY(3px) scaleY(.92)}100%{transform:translateY(3px) scaleY(.92)}}
+  @keyframes k-epG-rentre{0%{transform:rotate(0)}45%{transform:rotate(-34deg)}100%{transform:rotate(-34deg)}}
+  @keyframes k-epD-rentre{0%{transform:rotate(0)}45%{transform:rotate(34deg)}100%{transform:rotate(34deg)}}
+  @keyframes k-coG-rentre{0%{transform:rotate(0)}45%{transform:rotate(-40deg)}100%{transform:rotate(-40deg)}}
+  @keyframes k-coD-rentre{0%{transform:rotate(0)}45%{transform:rotate(40deg)}100%{transform:rotate(40deg)}}
+
+  /* — Tête : inclinaisons (nuque), rotations (regard), menton — le corps reste immobile — */
+  .mv-tete-d .m-tete{animation:k-teteD var(--mime-dur,4s) ease-out both;}
+  .mv-tete-g .m-tete{animation:k-teteG var(--mime-dur,4s) ease-out both;}
+  @keyframes k-teteD{0%{transform:rotate(0)}45%{transform:rotate(22deg)}100%{transform:rotate(22deg)}}
+  @keyframes k-teteG{0%{transform:rotate(0)}45%{transform:rotate(-22deg)}100%{transform:rotate(-22deg)}}
+  .mv-regard-d .m-tete{animation:k-regardD var(--mime-dur,4s) ease-in-out both;}
+  .mv-regard-g .m-tete{animation:k-regardG var(--mime-dur,4s) ease-in-out both;}
+  @keyframes k-regardD{0%{transform:translateX(0)}45%{transform:translateX(4px)}100%{transform:translateX(4px)}}
+  @keyframes k-regardG{0%{transform:translateX(0)}45%{transform:translateX(-4px)}100%{transform:translateX(-4px)}}
+  .mv-menton .m-tete{animation:k-menton var(--mime-dur,4s) ease-out both;}
+  @keyframes k-menton{0%{transform:translateY(0) scale(1)}45%{transform:translateY(5px) scale(.9)}100%{transform:translateY(5px) scale(.9)}}
+
+  /* — Fente : le corps descend + jambe avant fléchie au genou, jambe arrière tendue — */
+  .mv-fente-d .m-tout{animation:k-fenteD var(--mime-dur,4s) ease-out both;}
+  .mv-fente-d .m-hanche-d{animation:k-hanD-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-d .m-genou-d{animation:k-genD-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-d .m-hanche-g{animation:k-hanG-ext var(--mime-dur,4s) ease-out both;}
+  .mv-fente-g .m-tout{animation:k-fenteG var(--mime-dur,4s) ease-out both;}
+  .mv-fente-g .m-hanche-g{animation:k-hanG-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-g .m-genou-g{animation:k-genG-fente var(--mime-dur,4s) ease-out both;}
+  .mv-fente-g .m-hanche-d{animation:k-hanD-ext var(--mime-dur,4s) ease-out both;}
+  @keyframes k-fenteD{0%{transform:translate(0,0)}45%{transform:translate(5px,7px)}100%{transform:translate(5px,7px)}}
+  @keyframes k-fenteG{0%{transform:translate(0,0)}45%{transform:translate(-5px,7px)}100%{transform:translate(-5px,7px)}}
+  @keyframes k-hanD-fente{0%{transform:rotate(0)}45%{transform:rotate(-36deg)}100%{transform:rotate(-36deg)}}
+  @keyframes k-genD-fente{0%{transform:rotate(0)}45%{transform:rotate(38deg)}100%{transform:rotate(38deg)}}
+  @keyframes k-hanG-fente{0%{transform:rotate(0)}45%{transform:rotate(36deg)}100%{transform:rotate(36deg)}}
+  @keyframes k-genG-fente{0%{transform:rotate(0)}45%{transform:rotate(-38deg)}100%{transform:rotate(-38deg)}}
+  @keyframes k-hanG-ext{0%{transform:rotate(0)}45%{transform:rotate(24deg)}100%{transform:rotate(24deg)}}
+  @keyframes k-hanD-ext{0%{transform:rotate(0)}45%{transform:rotate(-24deg)}100%{transform:rotate(-24deg)}}
+  /* — Talon-fesse : le genou se plie à fond (le tibia remonte derrière) — */
+  .mv-talon-d .m-genou-d{animation:k-genD-fold var(--mime-dur,4s) ease-out both;}
+  .mv-talon-d .m-hanche-d{animation:k-hanD-lift var(--mime-dur,4s) ease-out both;}
+  .mv-talon-g .m-genou-g{animation:k-genG-fold var(--mime-dur,4s) ease-out both;}
+  .mv-talon-g .m-hanche-g{animation:k-hanG-lift var(--mime-dur,4s) ease-out both;}
+  @keyframes k-genD-fold{0%{transform:rotate(0)}45%{transform:rotate(-148deg)}100%{transform:rotate(-148deg)}}
+  @keyframes k-genG-fold{0%{transform:rotate(0)}45%{transform:rotate(148deg)}100%{transform:rotate(148deg)}}
+  @keyframes k-hanD-lift{0%{transform:rotate(0)}45%{transform:rotate(-10deg)}100%{transform:rotate(-10deg)}}
+  @keyframes k-hanG-lift{0%{transform:rotate(0)}45%{transform:rotate(10deg)}100%{transform:rotate(10deg)}}
+  /* — Marche sur place : genoux qui montent en alternance (hanche + genou pliés) — */
+  .mv-marche .m-hanche-g{animation:k-hanG-mar 1s ease-in-out infinite;}
+  .mv-marche .m-genou-g{animation:k-genG-mar 1s ease-in-out infinite;}
+  .mv-marche .m-hanche-d{animation:k-hanD-mar 1s ease-in-out infinite;}
+  .mv-marche .m-genou-d{animation:k-genD-mar 1s ease-in-out infinite;}
+  @keyframes k-hanG-mar{0%,55%,100%{transform:rotate(0)}25%{transform:rotate(-32deg)}}
+  @keyframes k-genG-mar{0%,55%,100%{transform:rotate(0)}25%{transform:rotate(45deg)}}
+  @keyframes k-hanD-mar{0%,50%,100%{transform:rotate(0)}80%{transform:rotate(32deg)}}
+  @keyframes k-genD-mar{0%,50%,100%{transform:rotate(0)}80%{transform:rotate(-45deg)}}
+  /* — Rotation du bassin : petit cercle des hanches (boucle) — */
+  .mv-bassin .m-tout{animation:k-bassin 2.6s ease-in-out infinite;}
+  .mv-bassin-inv .m-tout{animation:k-bassin 2.6s ease-in-out infinite reverse;}
+  @keyframes k-bassin{0%{transform:translate(0,0)}25%{transform:translate(4px,1px)}50%{transform:translate(0,3px)}75%{transform:translate(-4px,1px)}100%{transform:translate(0,0)}}
+  /* — Secouer : vibration rapide de tous les membres (boucle) — */
+  .mv-secouer .m-epaule-g,.mv-secouer .m-epaule-d,.mv-secouer .m-coude-g,.mv-secouer .m-coude-d,.mv-secouer .m-hanche-g,.mv-secouer .m-hanche-d,.mv-secouer .m-genou-g,.mv-secouer .m-genou-d{animation:k-shake .34s ease-in-out infinite;}
+  @keyframes k-shake{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+
+  .seance-bottom{display:flex;flex-direction:column;gap:8px;}
+
+  /* ---------- Barre de contrôle multimédia ---------- */
+  .controles{display:flex;align-items:center;justify-content:center;gap:22px;margin-top:6px;}
+  .ctrl{
+    width:44px;height:44px;flex:none;border-radius:50%;
+    border:1px solid rgba(51,48,43,.16);background:var(--blanc-brume);color:var(--accent-fort);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:background .2s ease,transform .12s ease,opacity .2s ease,color .4s ease;
+  }
+  .ctrl:hover{background:var(--accent-pale);}
+  .ctrl:active{transform:scale(.94);}
+  .ctrl-play{width:56px;height:56px;background:var(--accent);color:#fff;border-color:transparent;box-shadow:0 8px 18px -8px rgba(51,48,43,.5);transition:background .3s ease,transform .12s ease;}
+  .ctrl-play:hover{background:var(--accent);filter:brightness(1.06);}
+  .controles.inactif .ctrl{opacity:.4;pointer-events:none;}
+  .prog-labels{
+    display:flex;align-items:center;justify-content:space-between;
+    font:600 .74rem 'Karla';color:var(--encre-douce);
+  }
+  .prog-labels .restant{display:flex;align-items:center;gap:5px;}
+  .progression{height:5px;border-radius:99px;background:rgba(51,48,43,.12);overflow:hidden;}
+  .progression div{
+    height:100%;width:100%;transform:scaleX(0);transform-origin:left;
+    background:var(--accent);border-radius:99px;transition:background .4s ease;
+    /* pas de transition sur transform : mise à jour continue en rAF */
+  }
+
+  /* ===================== FIN ===================== */
+  .fin{align-items:center;text-align:center;padding:18px 22px 22px;justify-content:flex-start;}
+  .check-cercle{
+    width:66px;height:66px;flex:none;border-radius:50%;
+    background:var(--accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    margin:12px 0 16px;transition:background .4s ease;
+  }
+  .fin h2{
+    font-family:'Bricolage Grotesque',sans-serif;font-weight:300;
+    font-size:1.85rem;line-height:1.12;color:var(--accent-fort);margin-bottom:8px;
+    transition:color .4s ease;
+  }
+  .fin .fin-texte{font-size:.86rem;color:var(--encre-douce);max-width:28em;margin-bottom:20px;}
+
+  .recap{
+    display:flex;width:100%;
+    border-top:1px solid var(--trait);border-bottom:1px solid var(--trait);
+    padding:14px 0;margin-bottom:20px;
+  }
+  .recap .item{flex:1;}
+  .recap .val{
+    display:block;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;
+    font-size:1.45rem;color:var(--accent-fort);transition:color .4s ease;
+  }
+  .recap .lab{font:500 .66rem 'Karla';color:var(--encre-douce);text-transform:uppercase;letter-spacing:.05em;}
+  .recap .sep{width:1px;background:var(--trait);}
+
+  .enchainer{width:100%;text-align:left;margin-bottom:16px;}
+  .enchainer .titre{
+    display:block;font:600 .66rem 'Karla';color:var(--encre-douce);
+    text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;
+  }
+  .next-card{
+    width:100%;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;
+    padding:13px 14px;border-radius:16px;
+    background:var(--blanc-brume);border:1px solid var(--trait);
+    font-family:inherit;color:inherit;
+    transition:box-shadow .2s ease,transform .12s ease;
+  }
+  .next-card:hover,.next-card:focus-visible{box-shadow:0 10px 22px -12px rgba(51,48,43,.35);}
+  .next-card:active{transform:scale(.985);}
+  .next-card .pastille{width:40px;height:40px;flex:none;border-radius:11px;display:flex;align-items:center;justify-content:center;}
+  .next-card .texte{flex:1;min-width:0;}
+  .next-card .nom{display:block;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:.92rem;color:var(--accent-fort);}
+  .next-card .meta{display:block;font-size:.76rem;color:var(--encre-douce);margin-top:1px;}
+
+  .fin-boutons{display:flex;gap:12px;width:100%;margin-top:auto;padding-top:8px;}
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:7px;
+    font:700 .88rem 'Karla';cursor:pointer;padding:14px 12px;border-radius:14px;line-height:1.15;
+    transition:transform .12s ease,background .3s ease,color .3s ease,border-color .3s ease;
+  }
+  .btn:active{transform:scale(.985);}
+  .btn-ghost{flex:none;min-width:120px;background:transparent;color:var(--accent-fort);border:1px solid rgba(51,48,43,.16);}
+  .btn-primary{flex:1;background:var(--accent);color:#fff;border:1px solid transparent;}
+
+  /* En pause : on fige le halo et le personnage (la bulle est déjà figée, rAF stoppé) */
+  .seance.en-pause .halo,
+  .seance.en-pause .bonhomme-anim g,
+  .seance.en-pause .bonhomme-anim line,
+  .seance.en-pause .bonhomme-anim circle{animation-play-state:paused;}
+
+  /* ---------- Focus visible & mouvement réduit ---------- */
+  :focus-visible{outline:3px solid var(--accent-fort);outline-offset:2px;border-radius:8px;}
+  @media (prefers-reduced-motion:reduce){
+    .btn,.carte-exo,.next-card,.onglet,.progression div,.ctrl{transition:none;}
+    .carte-exo{animation:none;}
+    .halo{animation:none;}
+    .bonhomme-anim *{animation:none!important;} /* figure figée en posture d'étirement */
+  }
