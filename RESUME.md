@@ -45,7 +45,7 @@ Nouveautés ajoutées lors d'une seconde passe de retours, **sans toucher au des
   - *jambes* : `pointe`, `talon-d`/`talon-g`, `fente-d`/`fente-g` (corps qui descend + jambes écartées), `marche` (jambes alternées), `bassin`/`bassin-inv`, `secouer`.
   Chaque membre pivote à **son articulation** (`transform-box:view-box` + `transform-origin` au cou / épaule / hanche), d'où des mouvements réellement indépendants.
 - **Squelette articulé (itération 4)** : le personnage a désormais des **coudes et des genoux** (groupes SVG imbriqués `m-epaule→m-coude`, `m-hanche→m-genou` ; l'enfant pivote avant le parent → l'avant-bras/tibia restent attachés). Cela rend les poses bien plus justes — **fente à genou plié**, **talon-fesse** (tibia replié), étirements de bras coude fléchi (`bras-ciel`, `poitrine`, `dos-rond`, `bras-avant`). Style minimaliste et animation CSS fluides conservés ; figé en pause et `prefers-reduced-motion`.
-- **3 icônes d'exercice distinctes** (SVG inline, style minimaliste du bonhomme) sur les **cartes** de la section Étirements : `etir-nuque` (tête inclinée, main à la tête), `etir-epaules` (coudes ouverts), `etir-jambes` (fente). L'**onglet** de section garde le bonhomme « étoile » comme identité.
+- **3 icônes d'exercice sur les cartes** de la section Étirements — **métaphores d'origine** vectorisées façon Lucide (itération 5) : `etir-nuque` = **girafe** (long cou), `etir-epaules` = **pousse / branche** (sprout), `etir-jambes` = **feuille portée par le vent**. L'**onglet** et le titre de section gardent le bonhomme « étoile » comme identité. *(Ces cartes affichaient brièvement des poses de bonhomme en itération 3 ; remplacées ici par les métaphores.)*
 
 ---
 
@@ -177,7 +177,7 @@ Animation : rampe adoucie par `easeInOut` (demi-cosinus) ; `inspire`/`expire` su
 
 **Inventaire des exercices (9 au total)** *(titres et durées d'origine ; icône SVG entre parenthèses)* :
 - Respiration : `coherence` « Relâcher la pression » (`waves`, 5 min), `478` « Calmer l'anxiété » (`moon`, 3 min), `carree` « Se recentrer » (`square`, 4 min).
-- Étirement : `nuque` « Dénouer la nuque » (`etir-nuque`, 2 min), `epaules` « Ouvrir les épaules » (`etir-epaules`, 3 min), `jambes` « Réveiller les jambes » (`etir-jambes`, 3 min). *(icônes de carte distinctes ; les 3 portent `mime:true` → personnage animé)*
+- Étirement : `nuque` « Dénouer la nuque » (`etir-nuque` = girafe, 2 min), `epaules` « Ouvrir les épaules » (`etir-epaules` = pousse, 3 min), `jambes` « Réveiller les jambes » (`etir-jambes` = feuille au vent, 3 min). *(métaphores d'origine ; les 3 portent `mime:true` → personnage articulé animé)*
 - Récupération : `reveil` « Réveil express » (`zap`, 2 min), `detente` « Détente éclair » (`droplet`, 90 s), `recharge` « Recharge complète » (`battery-charging`, 3 min).
 
 ### 4.2 Assets audio (`assets/`)
