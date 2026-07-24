@@ -269,13 +269,15 @@
     position:absolute;width:64%;height:64%;
     top:44%;left:50%;transform:translate(-50%,-50%);
     color:var(--accent-fort);display:none;pointer-events:none;
-    /* Lueur dorée douce (halo) — le détourage net vient des liserés `.os-or` par membre ci-dessous */
-    filter:drop-shadow(0 0 4px var(--dore-doux)) drop-shadow(0 0 8px var(--dore-doux));
+    /* Lueur/ombre DORÉE autour du personnage et de ses membres — le drop-shadow suit
+       chaque os en mouvement, ce qui détache la silhouette et clarifie les gestes. */
+    filter:drop-shadow(0 0 2px var(--dore)) drop-shadow(0 0 7px var(--dore-doux));
     transition:color .4s ease;
   }
   .scene.avec-mime .bonhomme-anim{display:block;}
-  /* Liseré doré fin et net, sous chaque os (le trait vert fait 5) → sépare les membres qui se croisent */
-  .bonhomme-anim .os-or{stroke:var(--dore);stroke-width:7;}
+  /* Silhouette dorée FINE : calque du dessous, à peine plus épais que le vert (5) — halo/contour
+     autour de la silhouette globale, sans marquer les superpositions entre membres */
+  .bonhomme-anim .m-contour{stroke:var(--dore);stroke-width:7;}
   /* En mode mime, le décompte passe en petit, au bas de la scène */
   .scene.avec-mime .compte{
     position:absolute;top:auto;bottom:3%;left:0;right:0;

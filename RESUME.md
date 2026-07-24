@@ -303,7 +303,7 @@ Objet `A` = 5 éléments `Audio` (`preload="auto"`) :
 | `#ecran-accueil` (`.accueil`) | Titre à banderole dorée, intro, `.onglets` (tablist ARIA), `.question`, `.choix` (cartes), note sécurité (icône `car`), copyright |
 | `.onglets` / `.onglet` | Sélecteur de section (icône SVG + libellé, `role="tab"`, `aria-selected`) |
 | `.carte-exo` | Carte exercice (**pastille icône SVG** + titre + méta + **tag doré**) — **générée en JS** |
-| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + bouton **« ← Retour »** ; `#phase` puis `#sous-consigne` **au-dessus de la bulle** ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte`, personnage `#bonhomme` **détouré en doré + lueur** — chaque membre a un liseré doré fin `.os-or` (peint sous le trait vert, ordre de peinture → sépare les membres qui se croisent) + halo doré doux) ; `.progression`>`#barre`, `#temps-restant` ; **`#controles`** (Recule / Pause / Avance) |
+| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + bouton **« ← Retour »** ; `#phase` puis `#sous-consigne` **au-dessus de la bulle** ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte`, personnage `#bonhomme` **à silhouette dorée fine + lueur** — calque de fond `.m-contour` (trait doré fin `stroke-width:7`, sous le calque vert) qui détoure la silhouette globale + halo doré doux) ; `.progression`>`#barre`, `#temps-restant` ; **`#controles`** (Recule / Pause / Avance) |
 | `#ecran-fin` (`.fin`) | Pastille `check` + titre « Bien joué. Bonne route ! » + texte + **`.recap`** (durée / respirations-mouvements) + **`.enchainer`** (carte suggérée) + boutons **Refaire** / **Faire un autre exercice** |
 
 ### 6.2 Fonctions clés (JS)
