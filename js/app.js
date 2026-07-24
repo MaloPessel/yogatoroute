@@ -131,7 +131,8 @@
 
   document.addEventListener("keydown", e => {
     if (!$("ecran-seance").classList.contains("actif")) return;
-    if (e.key === "Escape"){ allerAccueil(); return; }
+    // Retour en arrière (quitte la séance, arrête musique + compteurs) : Échap ou Retour arrière
+    if (e.key === "Escape" || e.key === "Backspace"){ e.preventDefault(); allerAccueil(); return; }
     if (etat === "exercice"){                        // raccourcis des contrôles multimédia
       if (e.key === " " || e.code === "Space"){ e.preventDefault(); basculerPause(); }
       else if (e.key === "ArrowRight"){ e.preventDefault(); phaseSuivante(); }

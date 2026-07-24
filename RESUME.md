@@ -159,7 +159,7 @@ Variable `etat` : `accueil → intro → exercice → conclusion → fin`. Une v
 **F. Conclusion** — `conclure()` : arrête rAF/voix/musique, passe en **état `conclusion`**, affiche `section.outro`, joue la cloche, puis passe en **état `fin`**. `afficherFin()` remplit alors l'écran final : `section.finTexte`, le **récapitulatif** (`fmt(dureeTotale)` + nb de respirations/mouvements) et la carte **« Enchaîner avec »** (`NEXT[section]` → titre/méta de l'exercice suggéré, teinté par sa section).
 
 **G. Sorties / relances possibles :**
-- Bouton **fermer (×)** dans la séance ou **touche Échap** → `allerAccueil()` (`arreterTout()` + retour accueil).
+- Bouton explicite **« ← Retour »** dans la séance, ou **touche Échap / Retour arrière (Backspace)** → `allerAccueil()` (`arreterTout()` : coupe musique + rAF/compteurs, puis retour accueil).
 - Clic sur le **logo** (`allerAccueil`) → idem.
 - Écran fin : **« Refaire »** (`refaire()` → relance le même exercice), **« Enchaîner avec »** (`goNext()` → exercice suggéré, éventuellement d'une autre section), **« Faire un autre exercice »** (`allerAccueil()`).
 
@@ -217,7 +217,7 @@ Objet `A` = 5 éléments `Audio` (`preload="auto"`) :
 |---|---|---|
 | `ding.mp3` (~101 Ko) | **Cloche** de début/fin de séance | `volume 0.7`, durée déclarée `DING_DUREE = 2 s` |
 | `music.mp3` (~7,5 Mo) | **Musique d'ambiance** — piste de **repli** commune | `loop = true`, `volume` nominal `0.35`, baissé à `0.15` (ducking) pendant un repère vocal |
-| `music-{respiration,etirement,recuperation}.mp3` *(à fournir)* | **Bande-son propre à chaque section** (musique dynamique) | Chargées par `demarrerMusique(section)` ; repli mémorisé sur `music.mp3` si absentes |
+| `music2.mp3` (étirement) · `music3.mp3` (récupération) | **Bande-son propre à chaque section** (musique dynamique ; respiration = `music.mp3`) | Chargées par `demarrerMusique(section)` via `MUSIQUE_SRC` (`js/audio.js`) ; repli mémorisé sur `music.mp3` si absentes |
 | `inspire.mp3` | Repère vocal **« inspirez »** | joué à l'entrée d'une phase `inspire` |
 | `bloque.mp3` | Repère vocal **« bloquez »** (rétention) | phase `pause` |
 | `expire.mp3` | Repère vocal **« expirez »** | phase `expire` |
@@ -303,7 +303,7 @@ Objet `A` = 5 éléments `Audio` (`preload="auto"`) :
 | `#ecran-accueil` (`.accueil`) | Titre à banderole dorée, intro, `.onglets` (tablist ARIA), `.question`, `.choix` (cartes), note sécurité (icône `car`), copyright |
 | `.onglets` / `.onglet` | Sélecteur de section (icône SVG + libellé, `role="tab"`, `aria-selected`) |
 | `.carte-exo` | Carte exercice (**pastille icône SVG** + titre + méta + **tag doré**) — **générée en JS** |
-| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + fermer (×) ; `#phase` puis `#sous-consigne` **au-dessus de la bulle** ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte`, personnage `#bonhomme`) ; `.progression`>`#barre`, `#temps-restant` ; **`#controles`** (Recule / Pause / Avance) |
+| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + bouton **« ← Retour »** ; `#phase` puis `#sous-consigne` **au-dessus de la bulle** ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte`, personnage `#bonhomme` **à lueur dorée**) ; `.progression`>`#barre`, `#temps-restant` ; **`#controles`** (Recule / Pause / Avance) |
 | `#ecran-fin` (`.fin`) | Pastille `check` + titre « Bien joué. Bonne route ! » + texte + **`.recap`** (durée / respirations-mouvements) + **`.enchainer`** (carte suggérée) + boutons **Refaire** / **Faire un autre exercice** |
 
 ### 6.2 Fonctions clés (JS)

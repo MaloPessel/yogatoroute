@@ -25,12 +25,13 @@
   const VOIX = { inspire: A.inspire, pause: A.bloque, expire: A.expire };
 
   /* --- Musique dynamique : une bande-son par section, avec repli automatique ---
-     Déposez les 3 pistes dans assets/ pour les activer ; tant qu'elles sont absentes,
-     l'app se rabat proprement sur music.mp3 (aucune régression). --- */
+     Section 1 (respiration) = music.mp3, section 2 (étirement) = music2.mp3,
+     section 3 (récupération) = music3.mp3. Si un fichier est absent/illisible,
+     l'app se rabat proprement sur music.mp3 (repli mémorisé, aucune régression). --- */
   const MUSIQUE_SRC = {
-    respiration:  "assets/music-respiration.mp3",
-    etirement:    "assets/music-etirement.mp3",
-    recuperation: "assets/music-recuperation.mp3"
+    respiration:  "assets/music.mp3",    // section 1 — piste d'origine
+    etirement:    "assets/music2.mp3",   // section 2
+    recuperation: "assets/music3.mp3"    // section 3
   };
   const MUSIQUE_REPLI = "assets/music.mp3";   // piste par défaut, toujours présente
   const _musiqueKO = {};                      // pistes absentes déjà repérées (repli mémorisé)
