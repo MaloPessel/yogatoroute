@@ -159,7 +159,7 @@ Variable `etat` : `accueil → intro → exercice → conclusion → fin`. Une v
 **F. Conclusion** — `conclure()` : arrête rAF/voix/musique, passe en **état `conclusion`**, affiche `section.outro`, joue la cloche, puis passe en **état `fin`**. `afficherFin()` remplit alors l'écran final : `section.finTexte`, le **récapitulatif** (`fmt(dureeTotale)` + nb de respirations/mouvements) et la carte **« Enchaîner avec »** (`NEXT[section]` → titre/méta de l'exercice suggéré, teinté par sa section).
 
 **G. Sorties / relances possibles :**
-- Bouton explicite **« ← Retour »** dans la séance, ou **touche Échap / Retour arrière (Backspace)** → `allerAccueil()` (`arreterTout()` : coupe musique + rAF/compteurs, puis retour accueil).
+- Bouton explicite **« ← Retour à l'accueil »** dans la séance, **touche Échap / Retour arrière (Backspace)**, ou **geste « retour » natif du mobile / flèche Précédent** → `allerAccueil()` (`arreterTout()` : coupe musique + rAF/compteurs, puis retour accueil). Le geste natif est géré via l'**API History** : `history.pushState` à l'entrée en séance (`marquerSession`), `popstate` → `allerAccueil()`.
 - Clic sur le **logo** (`allerAccueil`) → idem.
 - Écran fin : **« Refaire »** (`refaire()` → relance le même exercice), **« Enchaîner avec »** (`goNext()` → exercice suggéré, éventuellement d'une autre section), **« Faire un autre exercice »** (`allerAccueil()`).
 
@@ -303,7 +303,7 @@ Objet `A` = 5 éléments `Audio` (`preload="auto"`) :
 | `#ecran-accueil` (`.accueil`) | Titre à banderole dorée, intro, `.onglets` (tablist ARIA), `.question`, `.choix` (cartes), note sécurité (icône `car`), copyright |
 | `.onglets` / `.onglet` | Sélecteur de section (icône SVG + libellé, `role="tab"`, `aria-selected`) |
 | `.carte-exo` | Carte exercice (**pastille icône SVG** + titre + méta + **tag doré**) — **générée en JS** |
-| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + bouton **« ← Retour »** ; `#phase` puis `#sous-consigne` **au-dessus de la bulle** ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte`, personnage `#bonhomme` **à lueur dorée**) ; `.progression`>`#barre`, `#temps-restant` ; **`#controles`** (Recule / Pause / Avance) |
+| `#ecran-seance` (`.seance`) | En-tête `#seance-titre`/`#seance-sous-titre` + bouton **« ← Retour »** ; `#phase` puis `#sous-consigne` **au-dessus de la bulle** ; `.scene` (`.halo`, `.anneau`, `.cercle`, `#compte`, personnage `#bonhomme` **à contour + lueur dorés** — calque `.m-contour` (trait doré épais) sous le calque vert, animés en phase) ; `.progression`>`#barre`, `#temps-restant` ; **`#controles`** (Recule / Pause / Avance) |
 | `#ecran-fin` (`.fin`) | Pastille `check` + titre « Bien joué. Bonne route ! » + texte + **`.recap`** (durée / respirations-mouvements) + **`.enchainer`** (carte suggérée) + boutons **Refaire** / **Faire un autre exercice** |
 
 ### 6.2 Fonctions clés (JS)

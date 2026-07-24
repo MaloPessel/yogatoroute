@@ -275,6 +275,8 @@
     transition:color .4s ease;
   }
   .scene.avec-mime .bonhomme-anim{display:block;}
+  /* Contour doré net : calque du dessous, trait plus épais que le vert (5) qui le recouvre */
+  .bonhomme-anim .m-contour{stroke:var(--dore);stroke-width:9;}
   /* En mode mime, le décompte passe en petit, au bas de la scène */
   .scene.avec-mime .compte{
     position:absolute;top:auto;bottom:3%;left:0;right:0;

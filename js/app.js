@@ -29,16 +29,27 @@
       '</button>').join("");
   }
 
+  /* Historique navigateur : on marque l'entrée en séance (history.pushState) pour que le
+     geste « retour » natif du mobile (ou la flèche Précédent) ramène à l'accueil via popstate. */
+  let sessionHistorique = false;
+  function marquerSession(){
+    if (!sessionHistorique){ history.pushState({ yoga: "seance" }, ""); sessionHistorique = true; }
+  }
   function allerAccueil(){
-    arreterTout();
+    arreterTout();                 // stoppe la musique + les compteurs (rAF)
     choisirSection(sectionCourante);
     montrer("ecran-accueil");
+    if (sessionHistorique){        // retour « in-app » : on retire l'entrée poussée (historique cohérent)
+      sessionHistorique = false;
+      history.back();              // déclenche popstate, déjà neutralisé par le flag remis à false
+    }
   }
 
   /* ---------- Lancement d'un exercice ---------- */
   async function lancerExo(sectionId, cle){
     arreterTout();
     deverrouillerAudio();                        // déverrouille l'audio DANS le geste utilisateur
+    marquerSession();                            // marque l'entrée en séance dans l'historique (retour mobile)
     const jeton = jetonLancement;
     sectionCourante = sectionId;
     voixActive = (sectionId === "respiration");  // repères vocaux réservés à la Respiration
@@ -137,6 +148,14 @@
       if (e.key === " " || e.code === "Space"){ e.preventDefault(); basculerPause(); }
       else if (e.key === "ArrowRight"){ e.preventDefault(); phaseSuivante(); }
       else if (e.key === "ArrowLeft"){ e.preventDefault(); phasePrecedente(); }
+    }
+  });
+
+  // Geste « retour » natif du mobile / flèche Précédent du navigateur → retour à l'accueil.
+  window.addEventListener("popstate", () => {
+    if (sessionHistorique){        // on quittait une séance : le navigateur a déjà retiré l'entrée
+      sessionHistorique = false;   // (mis à false AVANT allerAccueil pour ne pas re-déclencher history.back)
+      allerAccueil();              // → arreterTout() : coupe musique + compteurs
     }
   });
 
