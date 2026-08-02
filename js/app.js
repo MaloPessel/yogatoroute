@@ -24,8 +24,8 @@
     $("liste-exos").innerHTML = SECTIONS[sectionId].exos.map((e, i) =>
       '<button class="carte-exo" style="animation-delay:' + (i*0.05) + 's" onclick="lancerExo(\'' + sectionId + '\',\'' + e.cle + '\')">' +
         '<span class="pastille">' + icon(e.icon, 22) + '</span>' +
-        '<span class="texte"><span class="titre-exo">' + e.titre + '</span><span class="meta">' + e.meta + '</span></span>' +
-        '<span class="tag">' + e.tag + '</span>' +
+        '<span class="texte"><span class="titre-exo">' + tr(e.titre) + '</span><span class="meta">' + tr(e.meta) + '</span></span>' +
+        '<span class="tag">' + tr(e.tag) + '</span>' +
       '</button>').join("");
   }
 
@@ -52,7 +52,8 @@
     marquerSession();                            // marque l'entrée en séance dans l'historique (retour mobile)
     const jeton = jetonLancement;
     sectionCourante = sectionId;
-    voixActive = (sectionId === "respiration");  // repères vocaux réservés à la Respiration
+    // Repères vocaux : réservés à la Respiration, et aux langues dont les voix existent (fr)
+    voixActive = (sectionId === "respiration") && VOIX_LANGUES.includes(LANGUE);
     appliquerTheme(sectionId);
 
     const section = SECTIONS[sectionId];
@@ -61,8 +62,8 @@
     construireTimeline(exo);
 
     // En-tête de séance
-    $("seance-titre").textContent = exo.titre;
-    $("seance-sous-titre").textContent = exo.sousTitre;
+    $("seance-titre").textContent = tr(exo.titre);
+    $("seance-sous-titre").textContent = tr(exo.sousTitre);
     $("exo-icone").innerHTML = icon(exo.icon, 20);
 
     // Personnage « mime » : affiché pour les exos concernés (Étirements + Récup' exercice 3)
@@ -77,11 +78,11 @@
     // --- Phase d'introduction (message AU-DESSUS de la bulle, puis tintement de cloche) ---
     etat = "intro";
     montrer("ecran-seance");
-    $("phase").textContent = "Préparez-vous…";
-    $("sous-consigne").textContent = section.intro;   // le petit texte d'intro : hors de la bulle, au-dessus
+    $("phase").textContent = t("seance.preparez");
+    $("sous-consigne").textContent = tr(section.intro);   // le petit texte d'intro : hors de la bulle, au-dessus
     $("compte").textContent = "";
     $("barre").style.transform = "scaleX(0)";
-    $("temps-restant").textContent = "Encore " + fmt(dureeTotale);
+    $("temps-restant").textContent = tf("seance.restant", { t: fmt(dureeTotale) });
     placerBulle(ECHELLE_MIN);
 
     const abandonne = () => jeton !== jetonLancement || etat !== "intro";
@@ -105,24 +106,24 @@
     const section = SECTIONS[sectionCourante];
     // Récapitulatif : nombre de respirations (souffle) ou de mouvements (séquence)
     let countVal, countLabel;
-    if (curExo.type === "souffle"){ countVal = timeline.filter(p => p.type === "inspire").length; countLabel = "respirations"; }
-    else { countVal = timeline.filter(p => p.type !== "repos").length; countLabel = "mouvements"; }
+    if (curExo.type === "souffle"){ countVal = timeline.filter(p => p.type === "inspire").length; countLabel = t("fin.respirations"); }
+    else { countVal = timeline.filter(p => p.type !== "repos").length; countLabel = t("fin.mouvements"); }
     $("recap-dur").textContent = fmt(dureeTotale);
     $("recap-count").textContent = countVal;
     $("recap-count-lab").textContent = countLabel;
-    $("fin-texte").textContent = section.finTexte;
+    $("fin-texte").textContent = tr(section.finTexte);
 
     // Enchaînement : exercice suggéré (rotation entre sections)
     const nx = NEXT[sectionCourante];
     const nxExo = SECTIONS[nx.section].exos.find(e => e.cle === nx.key);
-    const t = TEINTE[nx.section];
+    const teinte = TEINTE[nx.section];   // `teinte` et non `t` : `t()` est la fonction de traduction
     prochain = { section: nx.section, key: nx.key };
     const past = $("next-pastille");
-    past.style.background = t.pale; past.style.color = t.fort;
+    past.style.background = teinte.pale; past.style.color = teinte.fort;
     past.innerHTML = icon(nxExo.icon, 20);
-    $("next-nom").textContent = nxExo.titre;
-    $("next-meta").textContent = nxExo.meta;
-    $("next-arrow").style.color = t.fort;
+    $("next-nom").textContent = tr(nxExo.titre);
+    $("next-meta").textContent = tr(nxExo.meta);
+    $("next-arrow").style.color = teinte.fort;
   }
 
   function goNext(){ if (prochain) lancerExo(prochain.section, prochain.key); }
@@ -162,3 +163,4 @@
   /* ---------- Amorçage ---------- */
   hydrateIcones();                 // remplit les icônes statiques (aucun réseau)
   choisirSection("respiration");
+  appliquerLangue();               // applique la langue mémorisée / celle du navigateur

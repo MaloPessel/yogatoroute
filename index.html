@@ -17,26 +17,33 @@
 <div class="app" data-section="respiration">
 
   <header>
-    <button class="logo" onclick="allerAccueil()" aria-label="Retour à l'accueil"><img src="logo.png" alt=""><span class="mot">Yoga<span class="to">to</span>route</span></button>
-    <span class="badge-pause"><span data-icon="pause" data-size="12"></span>Mode pause</span>
+    <button class="logo" onclick="allerAccueil()" data-i18n-aria="header.accueilAria" aria-label="Retour à l'accueil"><img src="logo.png" alt=""><span class="mot">Yoga<span class="to">to</span>route</span></button>
+    <div class="header-droite">
+      <span class="badge-pause"><span data-icon="pause" data-size="12"></span><span data-i18n="header.badge">Mode pause</span></span>
+      <!-- Bascule de langue FR / EN (mémorisée dans le navigateur) -->
+      <div class="lang" role="group" data-i18n-aria="header.langueAria" aria-label="Choisir la langue">
+        <button type="button" class="lang-opt actif" data-langue="fr" onclick="choisirLangue('fr')" aria-pressed="true"  data-i18n-aria="header.frAria" aria-label="Afficher l'application en français">FR</button>
+        <button type="button" class="lang-opt"       data-langue="en" onclick="choisirLangue('en')" aria-pressed="false" data-i18n-aria="header.enAria" aria-label="Afficher l'application en anglais">EN</button>
+      </div>
+    </div>
   </header>
 
   <!-- ===================== ACCUEIL ===================== -->
   <section class="ecran accueil actif" id="ecran-accueil">
-    <h1>Vous êtes garé·e ?<br>Offrez-vous <em>une vraie pause</em>.</h1>
-    <p class="intro">Respiration, étirement ou récupération express : quelques minutes guidées avant de reprendre la route. Moins de stress, plus d'attention au volant.</p>
+    <h1 data-i18n-html="accueil.titre">Vous êtes garé·e ?<br>Offrez-vous <em>une vraie pause</em>.</h1>
+    <p class="intro" data-i18n="accueil.intro">Respiration, étirement ou récupération express : quelques minutes guidées avant de reprendre la route. Moins de stress, plus d'attention au volant.</p>
 
-    <div class="onglets" role="tablist" aria-label="Type de pause">
-      <button class="onglet" data-section="respiration"  role="tab" aria-selected="true"  onclick="choisirSection('respiration')"><span data-icon="wind" data-size="20"></span>Respiration</button>
-      <button class="onglet" data-section="etirement"     role="tab" aria-selected="false" onclick="choisirSection('etirement')"><span data-icon="bonhomme" data-size="20"></span>Étirement</button>
-      <button class="onglet" data-section="recuperation"  role="tab" aria-selected="false" onclick="choisirSection('recuperation')"><span data-icon="zap" data-size="20"></span>Récup' rapide</button>
+    <div class="onglets" role="tablist" data-i18n-aria="accueil.ongletsAria" aria-label="Type de pause">
+      <button class="onglet" data-section="respiration"  role="tab" aria-selected="true"  onclick="choisirSection('respiration')"><span data-icon="wind" data-size="20"></span><span data-i18n="onglet.respiration">Respiration</span></button>
+      <button class="onglet" data-section="etirement"     role="tab" aria-selected="false" onclick="choisirSection('etirement')"><span data-icon="bonhomme" data-size="20"></span><span data-i18n="onglet.etirement">Étirement</span></button>
+      <button class="onglet" data-section="recuperation"  role="tab" aria-selected="false" onclick="choisirSection('recuperation')"><span data-icon="zap" data-size="20"></span><span data-i18n="onglet.recuperation">Récup' rapide</span></button>
     </div>
 
-    <p class="question" id="question-section">De quoi avez-vous besoin là, maintenant ?</p>
+    <p class="question" id="question-section" data-i18n="accueil.question">De quoi avez-vous besoin là, maintenant ?</p>
     <div class="choix" id="liste-exos"><!-- cartes injectées par JS --></div>
 
-    <p class="note-secu"><span data-icon="car" data-size="16"></span>À pratiquer uniquement à l'arrêt, moteur coupé, sur une aire de repos.</p>
-    <footer class="copyright">© 2026 La team Jardins Secrets (NathandMalo). Tous droits réservés.</footer>
+    <p class="note-secu"><span data-icon="car" data-size="16"></span><span data-i18n="accueil.noteSecu">À pratiquer uniquement à l'arrêt, moteur coupé, sur une aire de repos.</span></p>
+    <footer class="copyright" data-i18n="accueil.copyright">© 2026 La team Jardins Secrets (NathandMalo). Tous droits réservés.</footer>
   </section>
 
   <!-- ===================== SÉANCE ===================== -->
@@ -49,11 +56,11 @@
           <span class="exo-sous" id="seance-sous-titre">Suivez le cercle et la consigne.</span>
         </span>
       </span>
-      <button class="retour" onclick="allerAccueil()" aria-label="Retour à l'accueil (quitte la séance)"><span data-icon="arrow-left" data-size="16"></span>Retour à l'accueil</button>
+      <button class="retour" onclick="allerAccueil()" data-i18n-aria="seance.retourAria" aria-label="Retour à l'accueil (quitte la séance)"><span data-icon="arrow-left" data-size="16"></span><span data-i18n="seance.retour">Retour à l'accueil</span></button>
     </div>
 
     <div class="scene-wrap">
-      <span class="phase-label" id="phase" aria-live="polite">Préparez-vous…</span>
+      <span class="phase-label" id="phase" aria-live="polite" data-i18n="seance.preparez">Préparez-vous…</span>
       <p class="sous-consigne" id="sous-consigne" aria-live="polite">&nbsp;</p>
       <div class="scene" id="scene">
         <span class="halo" aria-hidden="true"></span>
@@ -90,15 +97,15 @@
 
     <div class="seance-bottom">
       <div class="prog-labels">
-        <span>Progression</span>
+        <span data-i18n="seance.progression">Progression</span>
         <span class="restant"><span data-icon="clock" data-size="13"></span><span id="temps-restant"></span></span>
       </div>
       <div class="progression" aria-hidden="true"><div id="barre"></div></div>
       <!-- Contrôles multimédia — reliés au minuteur et à l'état de l'exercice -->
       <div class="controles inactif" id="controles">
-        <button class="ctrl" id="btn-recule" type="button" onclick="phasePrecedente()" aria-label="Mouvement précédent"><span data-icon="skip-back" data-size="18"></span></button>
+        <button class="ctrl" id="btn-recule" type="button" onclick="phasePrecedente()" data-i18n-aria="ctrl.precedent" aria-label="Mouvement précédent"><span data-icon="skip-back" data-size="18"></span></button>
         <button class="ctrl ctrl-play" id="btn-pause" type="button" onclick="basculerPause()" aria-label="Mettre en pause"><span data-icon="pause" data-size="22"></span></button>
-        <button class="ctrl" id="btn-avance" type="button" onclick="phaseSuivante()" aria-label="Mouvement suivant"><span data-icon="skip-forward" data-size="18"></span></button>
+        <button class="ctrl" id="btn-avance" type="button" onclick="phaseSuivante()" data-i18n-aria="ctrl.suivant" aria-label="Mouvement suivant"><span data-icon="skip-forward" data-size="18"></span></button>
       </div>
     </div>
   </section>
@@ -106,17 +113,17 @@
   <!-- ===================== FIN ===================== -->
   <section class="ecran fin" id="ecran-fin">
     <span class="check-cercle" aria-hidden="true"><span data-icon="check" data-size="31"></span></span>
-    <h2 id="fin-titre">Bien joué. Bonne route !</h2>
+    <h2 id="fin-titre" data-i18n="fin.titre">Bien joué. Bonne route !</h2>
     <p class="fin-texte" id="fin-texte"></p>
 
-    <div class="recap" aria-label="Récapitulatif de la séance">
-      <div class="item"><span class="val" id="recap-dur">—</span><span class="lab">durée</span></div>
+    <div class="recap" data-i18n-aria="fin.recapAria" aria-label="Récapitulatif de la séance">
+      <div class="item"><span class="val" id="recap-dur">—</span><span class="lab" data-i18n="fin.duree">durée</span></div>
       <div class="sep" aria-hidden="true"></div>
       <div class="item"><span class="val" id="recap-count">—</span><span class="lab" id="recap-count-lab">respirations</span></div>
     </div>
 
     <div class="enchainer" id="enchainer">
-      <span class="titre">Enchaîner avec</span>
+      <span class="titre" data-i18n="fin.enchainer">Enchaîner avec</span>
       <button class="next-card" id="next-card" onclick="goNext()">
         <span class="pastille" id="next-pastille"></span>
         <span class="texte"><span class="nom" id="next-nom"></span><span class="meta" id="next-meta"></span></span>
@@ -125,14 +132,15 @@
     </div>
 
     <div class="fin-boutons">
-      <button class="btn btn-ghost" onclick="refaire()"><span data-icon="rotate-ccw" data-size="15"></span>Refaire</button>
-      <button class="btn btn-primary" onclick="allerAccueil()">Faire un autre exercice</button>
+      <button class="btn btn-ghost" onclick="refaire()"><span data-icon="rotate-ccw" data-size="15"></span><span data-i18n="fin.refaire">Refaire</span></button>
+      <button class="btn btn-primary" onclick="allerAccueil()" data-i18n="fin.autre">Faire un autre exercice</button>
     </div>
   </section>
 
 </div>
 
 <script src="js/utils.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/icons.js"></script>
 <script src="js/data.js"></script>
 <script src="js/audio.js"></script>

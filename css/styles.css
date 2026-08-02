@@ -107,6 +107,7 @@
   }
   .logo img{width:36px;height:36px;display:block;border-radius:50%;flex:none;} /* logo restauré */
   .logo .to{color:var(--dore);}
+  .header-droite{display:flex;align-items:center;gap:8px;flex:none;}
   .badge-pause{
     display:flex;align-items:center;gap:5px;
     border:1px solid var(--accent-doux);color:var(--accent-fort);
@@ -115,6 +116,23 @@
     background:rgba(253,250,248,.5);
     transition:color .4s ease,border-color .4s ease;
   }
+  /* Bascule de langue FR / EN — pastille dorée (fil conducteur) sur la langue active */
+  .lang{
+    display:flex;align-items:center;flex:none;
+    border:1px solid var(--trait);border-radius:99px;padding:2px;
+    background:rgba(253,250,248,.5);
+  }
+  .lang-opt{
+    border:none;background:none;cursor:pointer;
+    padding:4px 8px;border-radius:99px;
+    font:700 .68rem 'Karla';letter-spacing:.04em;color:var(--encre-douce);
+    transition:background .25s ease,color .25s ease;
+  }
+  .lang-opt:hover{color:var(--encre);}
+  .lang-opt.actif{background:var(--dore-pale);color:var(--dore-fort);}
+  .lang-opt:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+  /* Écrans étroits : le badge « Mode pause » s'efface pour laisser la place à la bascule */
+  @media (max-width:359px){ .badge-pause{display:none;} }
 
   /* ---------- Écrans ---------- */
   .ecran{display:none;flex:1;flex-direction:column;overflow-y:auto;overflow-x:hidden;}

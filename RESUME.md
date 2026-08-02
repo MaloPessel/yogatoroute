@@ -60,6 +60,24 @@ Séparation **propre HTML / CSS / JS**, sans **aucune** modification de logique,
 
 ---
 
+## 0.4 Itération 4 — retours clients + bilingue FR/EN (implémentée)
+
+**Retours de texte (2)** — dans `js/data.js` uniquement :
+- *Réveiller les jambes* (Étirements, 3ᵉ exercice), dernière étape : « Secouez les jambes, relâchez » → « **Secouez les jambes l'une après l'autre** » (sous-consigne « relâchez tout »).
+- *Ouvrir les épaules*, 3ᵉ mouvement : sous-consigne « tirez avec l'autre main » → « **Entourez le bras avec le coude inverse** » (le mouvement gauche symétrique reste sans sous-consigne, conformément au motif existant : la consigne détaillée n'est portée que par le premier mouvement d'une paire).
+
+**Bascule de langue français / anglais** — nouveau module `js/i18n.js`, chargé **juste après `utils.js` et AVANT `data.js`** :
+- **Textes de contenu** (`data.js`) : chaque chaîne affichée s'écrit `T("français", "english")` → les deux versions restent **côte à côte**, impossible d'en oublier une. Résolution à l'affichage par `tr(valeur)`. Aucun doublon de structure (durées, `mime`, `type`, `cle`, icônes restent uniques) → **pas de dérive possible** entre les deux langues.
+- **Libellés d'interface** : dictionnaire `UI = { fr, en }` (mêmes clés des deux côtés), lus par `t("cle")` et `tf("cle", {vars})` (substitution `{t}`, ex. « Encore 2:30 » / « 2:30 left »).
+- **DOM statique** : `index.html` porte des attributs `data-i18n` (texte), `data-i18n-html` (titre d'accueil, `<em>` de la banderole dorée conservé) et `data-i18n-aria` (`aria-label`). Les textes accompagnés d'une icône ont été **enveloppés dans un `<span>`** pour que la traduction ne remplace jamais le SVG.
+- **Bouton** : pastille `FR | EN` dans l'en-tête (à droite, à côté du badge « Mode pause » ; le badge s'efface sous 360 px). Langue active en **doré** (`--dore-pale`/`--dore-fort`, fil conducteur), `aria-pressed` à jour.
+- **Choix mémorisé** dans `localStorage` (`yogatoroute:langue`) ; à défaut, langue du navigateur ; à défaut, français. `<html lang>`, `<title>` et `meta description` suivent la langue.
+- **Bascule à chaud** : `appliquerLangue()` repeint le DOM statique puis `rafraichirEcrans()` retraduit ce que peint le JS, **selon l'étape en cours** (accueil, intro, exercice, conclusion, fin). En pleine séance, la consigne, la sous-consigne, le titre et le temps restant changent de langue **sans toucher à l'horloge** (`t0`/`pauseElapsed` intacts, aucun saut, décompte conservé) — fonctionne en lecture comme en pause.
+- **Repères vocaux** : les enregistrements (`inspire`/`bloque`/`expire`.mp3) n'existent **qu'en français** → la constante `VOIX_LANGUES = ["fr"]` les coupe en anglais (la cloche et la musique, neutres, restent actives). *Ajouter `"en"` à cette constante le jour où les voix anglaises sont déposées dans `assets/`.*
+- Corollaire corrigé : `afficherFin()` déclarait une variable locale `t` (teinte) qui masquait la fonction de traduction `t()` → renommée `teinte`.
+
+---
+
 ## 1. Concept et Objectif
 
 **Yogatoroute** est une application web mono-page de **pauses guidées destinées aux conducteurs sur les aires de repos d'autoroute**. Le message porté par l'interface est explicite : la pratique se fait *« à l'arrêt, moteur coupé, sur une aire de repos »*, dans le but de réduire le stress et d'améliorer l'attention au volant (`<title>`, meta `description`, note de sécurité `.note-secu`).
@@ -94,8 +112,9 @@ css/
   styles.css          toute la feuille de style (tokens, thèmes, écrans, mime…)
 js/
   utils.js            helpers DOM partagés ($, $app, fmt)
+  i18n.js             bilingue FR/EN : T/tr (contenu), UI/t/tf (interface), bascule
   icons.js            ICONS + icon() + hydrateIcones() (SVG inline)
-  data.js             SECTIONS, NEXT, TEINTE (contenu)
+  data.js             SECTIONS, NEXT, TEINTE (contenu, textes bilingues T("fr","en"))
   audio.js            cloche, musique dynamique par section, voix, déverrouillage mobile
   animations.js       échelle de la bulle + personnage articulé « mime »
   timer.js            état, timeline, horloge rAF, contrôles de lecture, conclusion
@@ -104,8 +123,8 @@ assets/               ding / music / inspire / bloque / expire (.mp3)
 logo.png              favicon + logo d'en-tête
 ```
 
-- **Chargement** : les 7 scripts sont inclus en fin de `<body>` via `<script src>` **classiques** (non-modules), dans l'**ordre de dépendance** `utils → icons → data → audio → animations → timer → app`. Choix d'architecture assumé : les gestionnaires **`onclick=` inline** du HTML appellent des fonctions **globales** ; des scripts classiques les exposent nativement (aucune réécriture des handlers, aucun build). Toutes les fonctions/constantes partagent le même scope global ; `app.js` (dernier) amorce l'app une fois tout chargé.
-- **Langue** : `<html lang="fr">`, UI et contenu 100 % en français.
+- **Chargement** : les 8 scripts sont inclus en fin de `<body>` via `<script src>` **classiques** (non-modules), dans l'**ordre de dépendance** `utils → i18n → icons → data → audio → animations → timer → app` (`i18n` **avant** `data`, qui utilise `T()` dès son évaluation). Choix d'architecture assumé : les gestionnaires **`onclick=` inline** du HTML appellent des fonctions **globales** ; des scripts classiques les exposent nativement (aucune réécriture des handlers, aucun build). Toutes les fonctions/constantes partagent le même scope global ; `app.js` (dernier) amorce l'app une fois tout chargé.
+- **Langue** : **bilingue français / anglais** (cf. §0.4). `<html lang>` suit la langue active ; français par défaut, choix mémorisé dans `localStorage`.
 - **Polices** : Google Fonts — **Bricolage Grotesque** (300/500/700/800) titres/logo/consignes, **Karla** (400/500/600/700) corps. Repli `system-ui` si indisponibles.
 - **Icônes** : SVG **inline** (`js/icons.js`) — aucune librairie, aucun CDN.
 - **Assets audio** : `new Audio("assets/…")`. ⚠️ Ces chemins sont résolus **relativement au document** (`index.html`, à la racine), **pas** au fichier JS — ils restent donc valides depuis `js/`, et le **déverrouillage audio mobile** est préservé.
@@ -115,6 +134,7 @@ logo.png              favicon + logo d'en-tête
 | Fichier | Responsabilité |
 |---|---|
 | `utils.js` | Helpers DOM (`$`, `$app`) et formatage `fmt` |
+| `i18n.js` | Bilingue FR/EN : `T`/`tr` (textes de contenu), dictionnaire `UI` + `t`/`tf` (interface), `choisirLangue`/`appliquerLangue`/`rafraichirEcrans`, `VOIX_LANGUES` |
 | `icons.js` | Bibliothèque d'icônes SVG inline + injection (`icon`, `hydrateIcones`) |
 | `data.js` | Données : sections, exercices, phases, enchaînement `NEXT`, teintes `TEINTE` |
 | `audio.js` | Cloche, **musique par section** (+ repli mémorisé), repères vocaux + ducking, déverrouillage mobile |
@@ -179,7 +199,9 @@ Objet JS littéral (aucune API, aucun stockage). Trois clés (`respiration`, `et
 }
 ```
 
-Chaque **exercice** : `{ cle, icon, titre, meta, tag, sousTitre, type, … }` — `icon` = nom d'un SVG de l'objet `ICONS` ; `titre`/`meta`/`tag`/`sousTitre` = textes d'origine (carte + en-tête de séance).
+Chaque **exercice** : `{ cle, icon, titre, meta, tag, sousTitre, type, … }` — `icon` = nom d'un SVG de l'objet `ICONS` ; `titre`/`meta`/`tag`/`sousTitre` = textes affichés (carte + en-tête de séance).
+
+⚠️ **Tous les champs texte** (`nom`, `intro`, `outro`, `finTexte`, `titre`, `meta`, `tag`, `sousTitre`, `label`, `sub`) sont **bilingues** : ils s'écrivent `T("français", "english")` et se lisent **toujours** via `tr(…)` au moment de l'affichage (cf. §0.4). Les champs non textuels (`cle`, `icon`, `type`, `dur`, `cible`, `mime`) restent uniques et **ne doivent pas** être traduits.
 
 **Deux types d'exercices** (champ `type`) :
 

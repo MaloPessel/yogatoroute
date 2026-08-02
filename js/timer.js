@@ -52,8 +52,8 @@
     const tIn = elapsed - phase.debut;
 
     if (idx !== idxPhaseAffiche){
-      $("phase").textContent = phase.label;
-      $("sous-consigne").innerHTML = phase.sub ? phase.sub : "&nbsp;";
+      $("phase").textContent = tr(phase.label);
+      $("sous-consigne").innerHTML = phase.sub ? tr(phase.sub) : "&nbsp;";
       idxPhaseAffiche = idx;
       majMime(phase);
       if (voixActive) jouerVoix(phase.type);     // repère vocal pile au changement de phase
@@ -66,7 +66,7 @@
 
     const restant = Math.max(0, Math.ceil(dureeTotale - elapsed));
     if (restant !== restantAffiche){
-      $("temps-restant").textContent = restant > 0 ? "Encore " + fmt(restant) : "Terminé";
+      $("temps-restant").textContent = restant > 0 ? tf("seance.restant", { t: fmt(restant) }) : t("seance.termine");
       restantAffiche = restant;
     }
     return false;
@@ -84,7 +84,7 @@
   function majBoutonPause(){
     const b = $("btn-pause"); if (!b) return;
     b.innerHTML = icon(enPause ? "play" : "pause", 22);
-    b.setAttribute("aria-label", enPause ? "Reprendre" : "Mettre en pause");
+    b.setAttribute("aria-label", enPause ? t("ctrl.reprendre") : t("ctrl.pause"));
   }
   function basculerPause(){
     if (etat !== "exercice") return;
@@ -148,10 +148,10 @@
     $("ecran-seance").classList.remove("en-pause");
 
     const section = SECTIONS[sectionCourante];
-    $("phase").textContent = section.outro;
+    $("phase").textContent = tr(section.outro);
     $("sous-consigne").innerHTML = "&nbsp;";
     $("compte").textContent = "";
-    $("temps-restant").textContent = "Terminé";
+    $("temps-restant").textContent = t("seance.termine");
 
     jouerDing().then(() => {
       if (etat !== "conclusion") return;   // l'utilisateur a quitté pendant la conclusion
