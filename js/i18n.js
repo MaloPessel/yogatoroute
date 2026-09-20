@@ -166,14 +166,14 @@
       $("seance-sous-titre").textContent = tr(curExo.sousTitre);
     }
     const section = SECTIONS[sectionCourante];
-    if (etat === "intro"){
+    if (etat === ETAT.INTRO){
       $("phase").textContent = t("seance.preparez");
       $("sous-consigne").textContent = tr(section.intro);
       $("temps-restant").textContent = tf("seance.restant", { t: fmt(dureeTotale) });
-    } else if (etat === "exercice"){
+    } else if (etat === ETAT.EXERCICE){
       idxPhaseAffiche = -1; compteAffiche = -1; restantAffiche = -1;   // force le repaint des libellés
       rendreFrame(_elapsedCourant());
-    } else if (etat === "conclusion"){
+    } else if (etat === ETAT.CONCLUSION){
       $("phase").textContent = tr(section.outro);
       $("temps-restant").textContent = t("seance.termine");
     } else {
@@ -181,6 +181,6 @@
       // pour ne pas y laisser traîner du texte dans l'ancienne langue.
       $("sous-consigne").innerHTML = "&nbsp;";
       $("temps-restant").textContent = "";
-      if (etat === "fin") afficherFin();
+      if (etat === ETAT.FIN) afficherFin();
     }
   }

@@ -220,9 +220,9 @@
 
   /* Rotation d'enchaînement (fin de séance → « Enchaîner avec ») */
   const NEXT = {
-    respiration:  { section:"etirement",    key:"nuque" },
-    etirement:    { section:"recuperation", key:"reveil" },
-    recuperation: { section:"respiration",  key:"coherence" }
+    respiration:  { section:"etirement",    cle:"nuque" },
+    etirement:    { section:"recuperation", cle:"reveil" },
+    recuperation: { section:"respiration",  cle:"coherence" }
   };
   /* Teintes de section (carte d'enchaînement uniquement) */
   const TEINTE = {

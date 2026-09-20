@@ -45,12 +45,9 @@
     }
   }
 
-  /* ---------- Lancement d'un exercice ---------- */
-  async function lancerExo(sectionId, cle){
-    arreterTout();
-    deverrouillerAudio();                        // déverrouille l'audio DANS le geste utilisateur
-    marquerSession();                            // marque l'entrée en séance dans l'historique (retour mobile)
-    const jeton = jetonLancement;
+  /* ---------- Lancement d'un exercice (découpé en étapes internes) ---------- */
+  // Étape 1 : état de session (section, voix, thème, exercice choisi, timeline)
+  function preparerSessionExo(sectionId, cle){
     sectionCourante = sectionId;
     // Repères vocaux : réservés à la Respiration, et aux langues dont les voix existent (fr)
     voixActive = (sectionId === "respiration") && VOIX_LANGUES.includes(LANGUE);
@@ -60,8 +57,11 @@
     const exo = section.exos.find(e => e.cle === cle);
     curExo = exo;
     construireTimeline(exo);
+    return { section, exo };
+  }
 
-    // En-tête de séance
+  // Étape 2 : écran d'intro (en-tête, mime en posture neutre, contrôles désactivés, message + cloche à venir)
+  function afficherIntroExo(section, exo){
     $("seance-titre").textContent = tr(exo.titre);
     $("seance-sous-titre").textContent = tr(exo.sousTitre);
     $("exo-icone").innerHTML = icon(exo.icon, 20);
@@ -75,8 +75,7 @@
     $("ecran-seance").classList.remove("en-pause");
     $("controles").classList.add("inactif");
 
-    // --- Phase d'introduction (message AU-DESSUS de la bulle, puis tintement de cloche) ---
-    etat = "intro";
+    etat = ETAT.INTRO;
     montrer("ecran-seance");
     $("phase").textContent = t("seance.preparez");
     $("sous-consigne").textContent = tr(section.intro);   // le petit texte d'intro : hors de la bulle, au-dessus
@@ -84,22 +83,37 @@
     $("barre").style.transform = "scaleX(0)";
     $("temps-restant").textContent = tf("seance.restant", { t: fmt(dureeTotale) });
     placerBulle(ECHELLE_MIN);
+  }
 
-    const abandonne = () => jeton !== jetonLancement || etat !== "intro";
+  // Étape 3 : démarrage effectif (musique, remise à zéro du rendu, boucle rAF)
+  function demarrerExercice(sectionId){
+    demarrerMusique(sectionId);   // piste propre à la section (repli automatique)
+
+    idxPhaseAffiche = -1; compteAffiche = -1; restantAffiche = -1;
+    etat = ETAT.EXERCICE;
+    enPause = false; majBoutonPause();
+    $("controles").classList.remove("inactif");  // contrôles actifs pendant l'exercice
+    t0 = performance.now();
+    rafId = requestAnimationFrame(boucle);
+  }
+
+  async function lancerExo(sectionId, cle){
+    arreterTout();
+    deverrouillerAudio();                        // déverrouille l'audio DANS le geste utilisateur
+    marquerSession();                            // marque l'entrée en séance dans l'historique (retour mobile)
+    const jeton = jetonLancement;
+
+    const { section, exo } = preparerSessionExo(sectionId, cle);
+    afficherIntroExo(section, exo);
+
+    // --- Phase d'introduction (message AU-DESSUS de la bulle, puis tintement de cloche) ---
+    const abandonne = () => jeton !== jetonLancement || etat !== ETAT.INTRO;
     await attendre(Math.max(0, (DUREE_INTRO - DING_DUREE) * 1000));
     if (abandonne()) return;
     await jouerDing();                           // la cloche sonne, l'exercice démarre à la fin du son
     if (abandonne()) return;
 
-    // Musique d'ambiance : piste propre à la section (repli automatique)
-    demarrerMusique(sectionId);
-
-    idxPhaseAffiche = -1; compteAffiche = -1; restantAffiche = -1;
-    etat = "exercice";
-    enPause = false; majBoutonPause();
-    $("controles").classList.remove("inactif");  // contrôles actifs pendant l'exercice
-    t0 = performance.now();
-    rafId = requestAnimationFrame(boucle);
+    demarrerExercice(sectionId);
   }
 
   function afficherFin(){
@@ -115,9 +129,9 @@
 
     // Enchaînement : exercice suggéré (rotation entre sections)
     const nx = NEXT[sectionCourante];
-    const nxExo = SECTIONS[nx.section].exos.find(e => e.cle === nx.key);
+    const nxExo = SECTIONS[nx.section].exos.find(e => e.cle === nx.cle);
     const teinte = TEINTE[nx.section];   // `teinte` et non `t` : `t()` est la fonction de traduction
-    prochain = { section: nx.section, key: nx.key };
+    prochain = { section: nx.section, cle: nx.cle };
     const past = $("next-pastille");
     past.style.background = teinte.pale; past.style.color = teinte.fort;
     past.innerHTML = icon(nxExo.icon, 20);
@@ -126,7 +140,7 @@
     $("next-arrow").style.color = teinte.fort;
   }
 
-  function goNext(){ if (prochain) lancerExo(prochain.section, prochain.key); }
+  function allerSuivant(){ if (prochain) lancerExo(prochain.section, prochain.cle); }
   function refaire(){ if (curExo) lancerExo(sectionCourante, curExo.cle); }
 
   /* ---------- Arrêt / nettoyage ---------- */
@@ -138,14 +152,14 @@
     const se = $("ecran-seance"); if (se) se.classList.remove("en-pause");
     const ctr = $("controles"); if (ctr) ctr.classList.add("inactif");
     const sc = $("scene"); if (sc) sc.classList.remove("avec-mime");
-    etat = "accueil";
+    etat = ETAT.ACCUEIL;
   }
 
   document.addEventListener("keydown", e => {
     if (!$("ecran-seance").classList.contains("actif")) return;
     // Retour en arrière (quitte la séance, arrête musique + compteurs) : Échap ou Retour arrière
     if (e.key === "Escape" || e.key === "Backspace"){ e.preventDefault(); allerAccueil(); return; }
-    if (etat === "exercice"){                        // raccourcis des contrôles multimédia
+    if (etat === ETAT.EXERCICE){                        // raccourcis des contrôles multimédia
       if (e.key === " " || e.code === "Space"){ e.preventDefault(); basculerPause(); }
       else if (e.key === "ArrowRight"){ e.preventDefault(); phaseSuivante(); }
       else if (e.key === "ArrowLeft"){ e.preventDefault(); phasePrecedente(); }

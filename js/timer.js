@@ -5,8 +5,9 @@
  * conclusion de l'exercice.
  */
   /* ---------- État de session ---------- */
+  const ETAT = { ACCUEIL:"accueil", INTRO:"intro", EXERCICE:"exercice", CONCLUSION:"conclusion", FIN:"fin" };
   let sectionCourante = "respiration";
-  let etat = "accueil";          // accueil | intro | exercice | conclusion | fin
+  let etat = ETAT.ACCUEIL;
   let timeline = [], bornes = [], dureeTotale = 0;
   let t0 = 0, rafId = null, idxPhaseAffiche = -1, compteAffiche = -1, restantAffiche = -1;
   let jetonLancement = 0;
@@ -46,8 +47,7 @@
       $("compte").textContent = "";
       return true;                               // exercice terminé
     }
-    let idx = 0;
-    while (idx < timeline.length - 1 && elapsed >= bornes[idx + 1]) idx++;
+    const idx = _idxCourant(elapsed);
     const phase = timeline[idx];
     const tIn = elapsed - phase.debut;
 
@@ -87,7 +87,7 @@
     b.setAttribute("aria-label", enPause ? t("ctrl.reprendre") : t("ctrl.pause"));
   }
   function basculerPause(){
-    if (etat !== "exercice") return;
+    if (etat !== ETAT.EXERCICE) return;
     if (!enPause){
       enPause = true;
       if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
@@ -114,7 +114,7 @@
   function _elapsedCourant(){ return enPause ? pauseElapsed : (performance.now() - t0) / 1000; }
   function _idxCourant(elapsed){ let i = 0; while (i < timeline.length - 1 && elapsed >= bornes[i + 1]) i++; return i; }
   function phaseSuivante(){
-    if (etat !== "exercice") return;
+    if (etat !== ETAT.EXERCICE) return;
     const idx = _idxCourant(_elapsedCourant());
     if (idx >= timeline.length - 1){                 // dernière phase → on termine
       if (enPause){ enPause = false; $("ecran-seance").classList.remove("en-pause"); majBoutonPause(); }
@@ -125,7 +125,7 @@
     sauterA(bornes[idx + 1]);
   }
   function phasePrecedente(){
-    if (etat !== "exercice") return;
+    if (etat !== ETAT.EXERCICE) return;
     const elapsed = _elapsedCourant();
     const idx = _idxCourant(elapsed);
     const tIn = elapsed - bornes[idx];
@@ -140,7 +140,7 @@
     if (fadeMusiqueRAF){ cancelAnimationFrame(fadeMusiqueRAF); fadeMusiqueRAF = null; }
     try{ A.music.pause(); }catch(e){}
     A.music.volume = MUSIQUE_VOL;
-    etat = "conclusion";
+    etat = ETAT.CONCLUSION;
 
     // Fin de l'exercice : on neutralise les contrôles
     enPause = false; majBoutonPause();
@@ -154,8 +154,8 @@
     $("temps-restant").textContent = t("seance.termine");
 
     jouerDing().then(() => {
-      if (etat !== "conclusion") return;   // l'utilisateur a quitté pendant la conclusion
-      etat = "fin";
+      if (etat !== ETAT.CONCLUSION) return;   // l'utilisateur a quitté pendant la conclusion
+      etat = ETAT.FIN;
       afficherFin();
       montrer("ecran-fin");
     });

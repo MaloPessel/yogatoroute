@@ -21,6 +21,7 @@
   A.ding.volume = 0.7;
 
   const MUSIQUE_VOL = 0.35, MUSIQUE_VOL_DUCK = 0.15;
+  const DUCK_FADE_MS = 180;   // durée par défaut du fondu musique (ducking sur repère vocal)
   A.music.volume = MUSIQUE_VOL;
   const VOIX = { inspire: A.inspire, pause: A.bloque, expire: A.expire };
 
@@ -85,7 +86,7 @@
   let fadeMusiqueRAF = null;
   function fondreMusique(cible, duree){
     if (fadeMusiqueRAF){ cancelAnimationFrame(fadeMusiqueRAF); fadeMusiqueRAF = null; }
-    duree = duree || 180;
+    duree = duree || DUCK_FADE_MS;
     const depart = A.music.volume, tf = performance.now();
     const pas = () => {
       const k = Math.min(1, (performance.now() - tf) / duree);
