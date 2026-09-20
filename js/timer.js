@@ -7,7 +7,7 @@
   /* ---------- État de session ---------- */
   const ETAT = { ACCUEIL:"accueil", INTRO:"intro", EXERCICE:"exercice", CONCLUSION:"conclusion", FIN:"fin" };
   let sectionCourante = "respiration";
-  let etat = ETAT.ACCUEIL;
+  let etat = ETAT.ACCUEIL;          // accueil | intro | exercice | conclusion | fin
   let timeline = [], bornes = [], dureeTotale = 0;
   let t0 = 0, rafId = null, idxPhaseAffiche = -1, compteAffiche = -1, restantAffiche = -1;
   let jetonLancement = 0;

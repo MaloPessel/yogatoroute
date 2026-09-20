@@ -75,6 +75,7 @@
     $("ecran-seance").classList.remove("en-pause");
     $("controles").classList.add("inactif");
 
+    // --- Phase d'introduction (message AU-DESSUS de la bulle, puis tintement de cloche) ---
     etat = ETAT.INTRO;
     montrer("ecran-seance");
     $("phase").textContent = t("seance.preparez");
@@ -106,7 +107,6 @@
     const { section, exo } = preparerSessionExo(sectionId, cle);
     afficherIntroExo(section, exo);
 
-    // --- Phase d'introduction (message AU-DESSUS de la bulle, puis tintement de cloche) ---
     const abandonne = () => jeton !== jetonLancement || etat !== ETAT.INTRO;
     await attendre(Math.max(0, (DUREE_INTRO - DING_DUREE) * 1000));
     if (abandonne()) return;
@@ -130,6 +130,10 @@
     // Enchaînement : exercice suggéré (rotation entre sections)
     const nx = NEXT[sectionCourante];
     const nxExo = SECTIONS[nx.section].exos.find(e => e.cle === nx.cle);
+    if (!nxExo){
+      console.warn('[Yogatoroute] Enchaînement introuvable : NEXT["' + sectionCourante + '"].cle="' + nx.cle + '" ne correspond à aucun exercice de la section "' + nx.section + '".');
+      return;
+    }
     const teinte = TEINTE[nx.section];   // `teinte` et non `t` : `t()` est la fonction de traduction
     prochain = { section: nx.section, cle: nx.cle };
     const past = $("next-pastille");
