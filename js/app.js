@@ -132,8 +132,11 @@
     const nxExo = SECTIONS[nx.section].exos.find(e => e.cle === nx.cle);
     if (!nxExo){
       console.warn('[Yogatoroute] Enchaînement introuvable : NEXT["' + sectionCourante + '"].cle="' + nx.cle + '" ne correspond à aucun exercice de la section "' + nx.section + '".');
+      prochain = null;
+      $("enchainer").style.display = "none";   // rien de cohérent à proposer : la carte reste masquée plutôt que périmée
       return;
     }
+    $("enchainer").style.display = "";         // réaffiche la carte (au cas où une fin précédente l'avait masquée)
     const teinte = TEINTE[nx.section];   // `teinte` et non `t` : `t()` est la fonction de traduction
     prochain = { section: nx.section, cle: nx.cle };
     const past = $("next-pastille");
