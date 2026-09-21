@@ -3,7 +3,8 @@
  *   SECTIONS : 3 sections (respiration / etirement / recuperation), leurs exercices,
  *              phases (libellés, durées, type, mouvement "mime"), textes intro/outro/fin.
  *   NEXT     : rotation d'enchaînement inter-sections (écran de fin).
- *   TEINTE   : couleurs pâle/foncée par section (carte "Enchaîner avec").
+ *              Les teintes pâle/foncée de la carte "Enchaîner avec" ne sont pas dupliquées ici :
+ *              elles sont lues à l'exécution depuis les tokens CSS (voir teinteSection() dans app.js).
  *
  *   BILINGUE : tout texte affiché est écrit T("français", "english") — les deux versions
  *              restent côte à côte, impossible d'en oublier une. Résolution à l'affichage
@@ -223,10 +224,4 @@
     respiration:  { section:"etirement",    cle:"nuque" },
     etirement:    { section:"recuperation", cle:"reveil" },
     recuperation: { section:"respiration",  cle:"coherence" }
-  };
-  /* Teintes de section (carte d'enchaînement uniquement) */
-  const TEINTE = {
-    respiration:  { pale:"#F3E4EC", fort:"#6E3E5C" },
-    etirement:    { pale:"#EDF3E7", fort:"#43603A" },
-    recuperation: { pale:"#E7EAF4", fort:"#2E3C63" }
   };

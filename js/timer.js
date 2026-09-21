@@ -144,7 +144,7 @@
 
     // Fin de l'exercice : on neutralise les contrôles
     enPause = false; majBoutonPause();
-    $("controles").classList.add("inactif");
+    basculerControles(false);
     $("ecran-seance").classList.remove("en-pause");
 
     const section = SECTIONS[sectionCourante];

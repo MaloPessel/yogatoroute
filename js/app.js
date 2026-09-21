@@ -13,13 +13,46 @@
     const pale = getComputedStyle($app).getPropertyValue("--accent-pale").trim();
     document.querySelector('meta[name="theme-color"]').setAttribute("content", pale);
   }
+  // Teintes pâle/foncée d'une section, lues depuis les tokens CSS (--resp-*/--etir-*/--recup-* dans
+  // :root) plutôt que dupliquées en JS — source unique de vérité, comme --accent-pale ci-dessus.
+  // Nécessaire pour la carte "Enchaîner avec" (afficherFin) : la section suggérée n'est pas forcément
+  // la section active, donc on ne peut pas lire --accent-pale (réécrit par data-section sur $app).
+  const PREFIXE_TEINTE = { respiration:"resp", etirement:"etir", recuperation:"recup" };
+  function teinteSection(sectionId){
+    const style = getComputedStyle(document.documentElement);
+    const prefixe = PREFIXE_TEINTE[sectionId];
+    return {
+      pale: style.getPropertyValue("--" + prefixe + "-pale").trim(),
+      fort: style.getPropertyValue("--" + prefixe + "-fort").trim()
+    };
+  }
   function choisirSection(sectionId){
     sectionCourante = sectionId;
     appliquerTheme(sectionId);
-    document.querySelectorAll(".onglet").forEach(o =>
-      o.setAttribute("aria-selected", o.dataset.section === sectionId ? "true" : "false"));
+    document.querySelectorAll(".onglet").forEach(o => {
+      const selectionne = o.dataset.section === sectionId;
+      o.setAttribute("aria-selected", selectionne ? "true" : "false");
+      o.setAttribute("tabindex", selectionne ? "0" : "-1");   // tabindex flottant (un seul onglet dans l'ordre de tabulation)
+    });
     rendreListe(sectionId);
   }
+  // Navigation clavier du tablist (WAI-ARIA APG « Tabs », activation automatique) :
+  // flèches gauche/droite déplacent le focus (avec bouclage) et basculent la section aussitôt,
+  // Home/End vont au premier/dernier onglet.
+  document.querySelector(".onglets").addEventListener("keydown", e => {
+    const onglets = Array.from(document.querySelectorAll(".onglet"));
+    const idx = onglets.indexOf(document.activeElement);
+    if (idx === -1) return;
+    let cible = null;
+    if (e.key === "ArrowRight") cible = onglets[(idx + 1) % onglets.length];
+    else if (e.key === "ArrowLeft") cible = onglets[(idx - 1 + onglets.length) % onglets.length];
+    else if (e.key === "Home") cible = onglets[0];
+    else if (e.key === "End") cible = onglets[onglets.length - 1];
+    if (!cible) return;
+    e.preventDefault();
+    cible.focus();
+    choisirSection(cible.dataset.section);
+  });
   function rendreListe(sectionId){
     $("liste-exos").innerHTML = SECTIONS[sectionId].exos.map((e, i) =>
       '<button class="carte-exo" style="animation-delay:' + (i*0.05) + 's" onclick="lancerExo(\'' + sectionId + '\',\'' + e.cle + '\')">' +
@@ -60,6 +93,19 @@
     return { section, exo };
   }
 
+  // Active/désactive les contrôles média : classe CSS (visuel) + aria-disabled/tabindex (clavier et
+  // lecteurs d'écran) en même temps, pour que les boutons visuellement grisés ne restent pas
+  // focusables/activables au clavier pendant l'intro et la conclusion.
+  function basculerControles(actifs){
+    const ctr = $("controles"); if (!ctr) return;
+    ctr.classList.toggle("inactif", !actifs);
+    ["btn-recule", "btn-pause", "btn-avance"].forEach(id => {
+      const b = $(id); if (!b) return;
+      if (actifs){ b.removeAttribute("aria-disabled"); b.removeAttribute("tabindex"); }
+      else { b.setAttribute("aria-disabled", "true"); b.setAttribute("tabindex", "-1"); }
+    });
+  }
+
   // Étape 2 : écran d'intro (en-tête, mime en posture neutre, contrôles désactivés, message + cloche à venir)
   function afficherIntroExo(section, exo){
     $("seance-titre").textContent = tr(exo.titre);
@@ -73,7 +119,7 @@
     // Contrôles : réinitialisés et désactivés pendant l'intro
     enPause = false; majBoutonPause();
     $("ecran-seance").classList.remove("en-pause");
-    $("controles").classList.add("inactif");
+    basculerControles(false);
 
     // --- Phase d'introduction (message AU-DESSUS de la bulle, puis tintement de cloche) ---
     etat = ETAT.INTRO;
@@ -93,7 +139,7 @@
     idxPhaseAffiche = -1; compteAffiche = -1; restantAffiche = -1;
     etat = ETAT.EXERCICE;
     enPause = false; majBoutonPause();
-    $("controles").classList.remove("inactif");  // contrôles actifs pendant l'exercice
+    basculerControles(true);  // contrôles actifs pendant l'exercice
     t0 = performance.now();
     rafId = requestAnimationFrame(boucle);
   }
@@ -137,7 +183,7 @@
       return;
     }
     $("enchainer").style.display = "";         // réaffiche la carte (au cas où une fin précédente l'avait masquée)
-    const teinte = TEINTE[nx.section];   // `teinte` et non `t` : `t()` est la fonction de traduction
+    const teinte = teinteSection(nx.section);   // `teinte` et non `t` : `t()` est la fonction de traduction
     prochain = { section: nx.section, cle: nx.cle };
     const past = $("next-pastille");
     past.style.background = teinte.pale; past.style.color = teinte.fort;
@@ -157,7 +203,7 @@
     stopAudio();
     enPause = false; majBoutonPause();
     const se = $("ecran-seance"); if (se) se.classList.remove("en-pause");
-    const ctr = $("controles"); if (ctr) ctr.classList.add("inactif");
+    basculerControles(false);
     const sc = $("scene"); if (sc) sc.classList.remove("avec-mime");
     etat = ETAT.ACCUEIL;
   }

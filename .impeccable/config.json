@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-20T23:54:51.190Z",
+        "reason": "Agent: .accueil h1 em's inset box-shadow is a text-highlight/underline effect under emphasized headline words (the site's documented 'banderole dorée' gold-thread motif), not a card side-border — confirmed by rule intent and source comment, not a card at all"
+      },
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-09-21T00:02:23.232Z",
+        "reason": "User confirmed: --greige is an intentional brand palette choice, consistent with the documented token system (doré thread + per-section hues)"
+      }
+    ]
+  }
+}

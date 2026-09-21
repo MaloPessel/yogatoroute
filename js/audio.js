@@ -16,7 +16,10 @@
     bloque:  new Audio("assets/bloque.mp3"),   // repère vocal « bloquez » (rétention)
     expire:  new Audio("assets/expire.mp3")    // repère vocal « expirez »
   };
-  [A.ding, A.music, A.inspire, A.bloque, A.expire].forEach(el => { el.preload = "auto"; });
+  [A.ding, A.inspire, A.bloque, A.expire].forEach(el => { el.preload = "auto"; });
+  // music.mp3 (7,5 Mo) : pas de préchargement au chargement de la page — même logique paresseuse
+  // que music2/music3 (chargement déclenché uniquement par demarrerMusique(), au démarrage réel d'une séance).
+  A.music.preload = "none";
   A.music.loop  = true;
   A.ding.volume = 0.7;
 
